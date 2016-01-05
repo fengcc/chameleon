@@ -60,6 +60,7 @@ while True:
                     else: # SET
                         mac = data[1:18]
                         strpsk = data[18:]
+                        
                         # database operation: insert
                         db_set(mac, strpsk)
 
