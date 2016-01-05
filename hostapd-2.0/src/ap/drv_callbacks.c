@@ -562,11 +562,6 @@ static int hostapd_setup_new_bss(struct hostapd_data *hapd)
 	if (conf->wmm_enabled < 0)
 		conf->wmm_enabled = hapd->iconf->ieee80211n;
 
-	if (hostapd_setup_wpa_psk(conf)) {
-		wpa_printf(MSG_ERROR, "WPA-PSK setup failed.");
-		return -1;
-	}
-
 	if (wpa_debug_level == MSG_MSGDUMP)
 		conf->radius->msg_dumps = 1;
 #ifndef CONFIG_NO_RADIUS
@@ -656,6 +651,86 @@ static int hostapd_setup_new_bss(struct hostapd_data *hapd)
 	return 0;
 }
 
+static void hostapd_psk_to_str(char *strpsk, const u8 *psk)
+{
+    size_t i;
+    for (i = 0; i < PMK_LEN; i++)
+        strpsk[i] = (char)psk[i];
+    strpsk[i] = '\0';
+}
+
+static void hostapd_str_to_psk(const char *strpsk, u8 *psk)
+{
+    size_t i;
+    for (i = 0; i < PMK_LEN; i++)
+        psk[i] = (u8)strpsk[i];
+}
+
+static size_t hostapd_rx_psk(size_t method, struct hostapd_iface *iface, const u8 *sa, u8 *psk)
+{
+	int connfd;
+    size_t nret;
+	struct sockaddr_in servaddr;
+    char strpsk[PMK_LEN + 1];
+	char send_buf[1 + MAC_ASCII_LEN + PMK_LEN + 1];
+
+	if ((connfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)	{
+		wpa_printf(MSG_ERROR, "socket error");
+		return -1;
+	}
+
+	memset(&servaddr, 0, sizeof(servaddr));
+	servaddr.sin_family = AF_INET;
+	servaddr.sin_port = htons(9999);
+	
+	if (inet_pton(AF_INET, iface->server_ip, &servaddr.sin_addr) <= 0) {
+		wpa_printf(MSG_ERROR, "inet_pton error for %s", iface->server_ip);
+	    close(connfd);
+        return -1;
+	}
+
+	wpa_printf(MSG_DEBUG, "connecting to server...\n");
+	if (connect(connfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0) {
+		wpa_printf(MSG_ERROR, "connect error");
+        close(connfd);
+		return -1;
+	}
+	wpa_printf(MSG_DEBUG, "connected!\n");
+
+    os_memset(strpsk, 0, PMK_LEN + 1);
+	if (method == GET) {
+        sprintf(send_buf, "%zu" MACSTR, method, MAC2STR(sa));
+    } else { /* SET */
+        hostapd_psk_to_str(strpsk, psk);
+        sprintf(send_buf, "%zu" MACSTR "%s", method, MAC2STR(sa), strpsk);
+    }
+	
+    if ((nret = write(connfd, send_buf, strlen(send_buf))) <= 0) {
+        wpa_printf(MSG_ERROR, "send data failed!\n");
+        close(connfd);
+        return -1;
+    }
+    
+    if (method == GET) {
+	    if ((nret = read(connfd, strpsk, PMK_LEN)) < 0) {
+	        wpa_printf(MSG_ERROR, "receive data failed!\n");
+            close(connfd);
+            return -1;
+        }
+        
+        if (nret == 0) {
+            close(connfd);
+            return 0; /* the server doesn't find the psk */
+        }
+        
+        strpsk[PMK_LEN] = '\0';
+        hostapd_str_to_psk(strpsk, psk);
+    }
+		
+	close(connfd);
+	return 1;
+}
+
 static struct hostapd_data * get_hapd_ssid(struct hostapd_iface *iface,
 					    const u8 *bssid, const u8 *sa, const u16 fc)
 {
@@ -679,7 +754,7 @@ static struct hostapd_data * get_hapd_ssid(struct hostapd_iface *iface,
 			&& WLAN_FC_GET_STYPE(fc) == WLAN_FC_STYPE_PROBE_RESP)) /* probe response */
 		return iface->bss[0];
 
-	mac_to_ascii(mac_ascii, sa);
+	hostapd_mac_to_ascii(mac_ascii, sa);
 	for (i = 1; i < iface->num_bss; i++) {
 		if (os_memcmp(mac_ascii, iface->bss[i]->conf->ssid.ssid, iface->bss[i]->conf->ssid.ssid_len) == 0) {
 			wpa_printf(MSG_DEBUG, "find sta : " MACSTR "\n", MAC2STR(sa));
@@ -695,7 +770,9 @@ static struct hostapd_data * get_hapd_ssid(struct hostapd_iface *iface,
      */
 	if (WLAN_FC_GET_TYPE(fc) == WLAN_FC_TYPE_MGMT
 		&& WLAN_FC_GET_STYPE(fc) == WLAN_FC_STYPE_AUTH)	{
-		size_t index;
+		size_t index, ret;
+        char tmp[64]; 
+        u8 psk[PMK_LEN];
 
 		wpa_printf(MSG_DEBUG, "new a ap for MAC:" MACSTR "\n", MAC2STR(sa));
 		
@@ -706,17 +783,38 @@ static struct hostapd_data * get_hapd_ssid(struct hostapd_iface *iface,
 
 		conf = iface->interfaces->config_read_cb(iface->config_fname);
 		conf->bss->ssid.ssid_len = MAC_ASCII_LEN;
-		memcpy(conf->bss->ssid.ssid, mac_ascii, MAC_ASCII_LEN);
-		
+		os_memcpy(conf->bss->ssid.ssid, mac_ascii, MAC_ASCII_LEN);
+
+        /* get psk from server */
+        if ((ret = hostapd_rx_psk(GET, iface, sa, psk)) < 0)
+            return NULL;
+
+        if (ret == 0) {
+            /* change password */
+            sprintf(tmp, "123456789%02x", sa[5]);
+            os_free(conf->bss->ssid.wpa_passphrase);
+            conf->bss->ssid.wpa_passphrase = os_strdup(tmp);
+            hostapd_derive_psk(&conf->bss->ssid);
+
+            /* send psk to server */
+            hostapd_rx_psk(SET, iface, sa, conf->bss->ssid.wpa_psk->psk);
+        } else {
+            conf->bss->ssid.wpa_psk = os_zalloc(sizeof(struct hostapd_wpa_psk));
+            os_memcpy(conf->bss->ssid.wpa_psk->psk, psk, PMK_LEN);
+        }
+
 		iface->interfaces->set_security_params(conf->bss);
 		iface->bss[index] = hostapd_alloc_bss_data(iface, conf,
 					       					conf->bss);
 
 		iface->bss[index]->driver = iface->bss[0]->driver;
 		iface->bss[index]->drv_priv = iface->bss[0]->drv_priv;
-		memcpy(iface->bss[index]->own_addr, iface->bss[0]->own_addr, ETH_ALEN);
-
-		if (hostapd_setup_new_bss(iface->bss[index]))
+		os_memcpy(iface->bss[index]->own_addr, iface->bss[0]->own_addr, ETH_ALEN);
+        
+        iface->bss[index]->conf->ssid.wpa_psk = conf->bss->ssid.wpa_psk;
+        iface->bss[index]->conf->ssid.wpa_psk->group = 1;
+	
+        if (hostapd_setup_new_bss(iface->bss[index]))
 			return NULL;
 
 		wpa_printf(MSG_DEBUG, "num_bss: %d\n", (int)iface->num_bss);

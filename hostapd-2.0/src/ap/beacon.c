@@ -237,7 +237,7 @@ static u8 * hostapd_gen_probe_resp(struct hostapd_data *hapd,
 
     //MAC地址存放在结构体struct ieee80211_mgmt的成员sa[6]中,先要将其转换成对应的ASCII码
     wpa_printf(MSG_DEBUG, "change SSID to MAC addr\n");
-    mac_to_ascii(mac_ascii, req->sa);
+    hostapd_mac_to_ascii(mac_ascii, req->sa);
     *pos++ = MAC_ASCII_LEN;
     os_memcpy(pos, mac_ascii, MAC_ASCII_LEN);
     pos += MAC_ASCII_LEN;
@@ -336,7 +336,7 @@ static enum ssid_match_result ssid_match(struct hostapd_data *hapd,
 
 	if (ssid_len == 0)
 		wildcard = 1;
-	mac_to_ascii(mac_ascii, addr);
+	hostapd_mac_to_ascii(mac_ascii, addr);
     if (ssid_len == MAC_ASCII_LEN &&
             os_memcmp(ssid, mac_ascii, MAC_ASCII_LEN) == 0)
 		return EXACT_SSID_MATCH;

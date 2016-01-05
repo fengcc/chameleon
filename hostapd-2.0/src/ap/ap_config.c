@@ -267,7 +267,7 @@ static int hostapd_config_read_wpa_psk(const char *fname,
 }
 
 
-static int hostapd_derive_psk(struct hostapd_ssid *ssid)
+int hostapd_derive_psk(struct hostapd_ssid *ssid)
 {
 	ssid->wpa_psk = os_zalloc(sizeof(struct hostapd_wpa_psk));
 	if (ssid->wpa_psk == NULL) {

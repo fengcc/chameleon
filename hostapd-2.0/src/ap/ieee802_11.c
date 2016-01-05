@@ -37,7 +37,7 @@
 #include "wnm_ap.h"
 #include "ieee802_11.h"
 
-void mac_to_ascii(u8 *mac_ascii, const u8 *addr)
+void hostapd_mac_to_ascii(u8 *mac_ascii, const u8 *addr)
 {
     char mac_str[MAC_ASCII_LEN + 1];
     int i;
