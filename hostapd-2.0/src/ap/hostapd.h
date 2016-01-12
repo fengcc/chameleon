@@ -209,10 +209,7 @@ struct hostapd_iface {
 	size_t num_bss;
 	struct hostapd_data **bss;
 
-    char server_ip[16];
-    int server_port;
-
-	int num_ap; /* number of entries in ap_list */
+ 	int num_ap; /* number of entries in ap_list */
 	struct ap_info *ap_list; /* AP info list head */
 	struct ap_info *ap_hash[STA_HASH_SIZE];
 	struct ap_info *ap_iter_list;
