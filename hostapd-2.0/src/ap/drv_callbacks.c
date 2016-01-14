@@ -759,11 +759,6 @@ static struct hostapd_data * get_hapd_ssid(struct hostapd_iface *iface,
         char tmp[64]; 
 
 		wpa_printf(MSG_DEBUG, "new a ap for MAC:" MACSTR "\n", MAC2STR(sa));
-		
-		iface->num_bss++;
-		iface->bss = (struct hostapd_data **)realloc(iface->bss, 
-						iface->num_bss * sizeof(struct hostapd_data *));
-		index = iface->num_bss - 1;
 
 		conf = iface->interfaces->config_read_cb(iface->config_fname);
 		conf->bss->ssid.ssid_len = MAC_ASCII_LEN;
@@ -777,6 +772,12 @@ static struct hostapd_data * get_hapd_ssid(struct hostapd_iface *iface,
         conf->bss->ssid.wpa_passphrase = os_strdup(tmp);
 
 		iface->interfaces->set_security_params(conf->bss);
+
+		iface->num_bss++;
+		iface->bss = (struct hostapd_data **)realloc(iface->bss, 
+						iface->num_bss * sizeof(struct hostapd_data *));
+		index = iface->num_bss - 1;
+		
 		iface->bss[index] = hostapd_alloc_bss_data(iface, conf,
 					       					conf->bss);
 
