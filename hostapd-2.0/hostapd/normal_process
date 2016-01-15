@@ -1,0 +1,581 @@
+1451018355.033235: random: Trying to read entropy from /dev/random
+1451018355.033405: Configuration file: /etc/hostapd.conf
+1451018355.035081: nl80211: interface wlan0 in phy phy10
+1451018355.035240: rfkill: initial event: idx=10 type=1 op=0 soft=0 hard=0
+1451018355.035364: nl80211: Using driver-based off-channel TX
+1451018355.035454: nl80211: Add own interface ifindex 17
+1451018355.118376: nl80211: Set mode ifindex 17 iftype 3 (AP)
+1451018355.127455: nl80211: Setup AP - device_ap_sme=0 use_monitor=0
+1451018355.127559: nl80211: Subscribe to mgmt frames with AP handle 0x18292b0
+1451018355.127566: nl80211: Register frame type=0xb0 nl_handle=0x18292b0
+1451018355.127568: nl80211: Register frame match - hexdump(len=0): [NULL]
+1451018355.127601: nl80211: Register frame type=0x0 nl_handle=0x18292b0
+1451018355.127603: nl80211: Register frame match - hexdump(len=0): [NULL]
+1451018355.127617: nl80211: Register frame type=0x20 nl_handle=0x18292b0
+1451018355.127619: nl80211: Register frame match - hexdump(len=0): [NULL]
+1451018355.127632: nl80211: Register frame type=0xa0 nl_handle=0x18292b0
+1451018355.127634: nl80211: Register frame match - hexdump(len=0): [NULL]
+1451018355.127646: nl80211: Register frame type=0xc0 nl_handle=0x18292b0
+1451018355.127648: nl80211: Register frame match - hexdump(len=0): [NULL]
+1451018355.127661: nl80211: Register frame type=0xd0 nl_handle=0x18292b0
+1451018355.127662: nl80211: Register frame match - hexdump(len=0): [NULL]
+1451018355.127675: nl80211: Register frame type=0x40 nl_handle=0x18292b0
+1451018355.127677: nl80211: Register frame match - hexdump(len=0): [NULL]
+1451018359.071945: BSS count 1, BSSID mask 00:00:00:00:00:00 (0 bits)
+1451018359.072078: nl80211: Regulatory information - country=00
+1451018359.072082: nl80211: 2402-2472 @ 40 MHz
+1451018359.072085: nl80211: 2457-2482 @ 20 MHz
+1451018359.072086: nl80211: 2474-2494 @ 20 MHz
+1451018359.072087: nl80211: 5170-5250 @ 40 MHz
+1451018359.072089: nl80211: 5735-5835 @ 40 MHz
+1451018359.072106: nl80211: Added 802.11b mode based on 802.11g information
+1451018359.072110: Completing interface initialization
+1451018359.072124: Mode: IEEE 802.11g  Channel: 11  Frequency: 2462 MHz
+1451018359.072127: nl80211: Set freq 2462 (ht_enabled=0 sec_channel_offset=0)
+1451018359.072216: RATE[0] rate=10 flags=0x1
+1451018359.072220: RATE[1] rate=20 flags=0x1
+1451018359.072221: RATE[2] rate=55 flags=0x1
+1451018359.072223: RATE[3] rate=110 flags=0x1
+1451018359.072224: RATE[4] rate=60 flags=0x0
+1451018359.072225: RATE[5] rate=90 flags=0x0
+1451018359.072226: RATE[6] rate=120 flags=0x0
+1451018359.072227: RATE[7] rate=180 flags=0x0
+1451018359.072228: RATE[8] rate=240 flags=0x0
+1451018359.072229: RATE[9] rate=360 flags=0x0
+1451018359.072230: RATE[10] rate=480 flags=0x0
+1451018359.072232: RATE[11] rate=540 flags=0x0
+1451018359.104375: wlan0: Flushing old station entries
+1451018359.115461: wlan0: Deauthenticate all stations
+1451018359.115501: nl80211: CMD_FRAME freq=2462 wait=0 no_cck=0 no_ack=0 offchanok=0
+1451018359.115567: nl80211: Frame command failed: ret=-16 (Device or resource busy) (freq=2462 wait=0)
+1451018359.115650: wpa_driver_nl80211_set_key: ifindex=17 alg=0 addr=(nil) key_idx=0 set_tx=0 seq_len=0 key_len=0
+1451018359.115798: wpa_driver_nl80211_set_key: ifindex=17 alg=0 addr=(nil) key_idx=1 set_tx=0 seq_len=0 key_len=0
+1451018359.115838: wpa_driver_nl80211_set_key: ifindex=17 alg=0 addr=(nil) key_idx=2 set_tx=0 seq_len=0 key_len=0
+1451018359.115871: wpa_driver_nl80211_set_key: ifindex=17 alg=0 addr=(nil) key_idx=3 set_tx=0 seq_len=0 key_len=0
+1451018359.115892: Using interface wlan0 with hwaddr c8:3a:35:c8:e4:2a and ssid "wificf"
+1451018359.115897: Deriving WPA PSK based on passphrase
+1451018359.115949: SSID - hexdump_ascii(len=6):
+     77 69 66 69 63 66                                 wificf          
+1451018359.115961: PSK (ASCII passphrase) - hexdump_ascii(len=9): [REMOVED]
+1451018359.142860: PSK (from passphrase) - hexdump(len=32): [REMOVED]
+1451018359.143103: random: Got 20/20 bytes from /dev/random
+1451018359.144072: GMK - hexdump(len=32): [REMOVED]
+1451018359.144927: Key Counter - hexdump(len=32): [REMOVED]
+1451018359.144965: WPA: Delay group state machine start until Beacon frames have been configured
+1451018359.145263: nl80211: Set beacon (beacon_set=0)
+1451018359.544284: WPA: Start group state machine to set initial keys
+1451018359.544294: WPA: group state machine entering state GTK_INIT (VLAN-ID 0)
+1451018359.545265: GTK - hexdump(len=16): [REMOVED]
+1451018359.545270: WPA: group state machine entering state SETKEYSDONE (VLAN-ID 0)
+1451018359.545313: wpa_driver_nl80211_set_key: ifindex=17 alg=3 addr=0x4593aa key_idx=1 set_tx=1 seq_len=0 key_len=16
+1451018359.545326:    broadcast key
+1451018359.568442: wpa_driver_nl80211_set_operstate: operstate 0->1 (UP)
+1451018359.568452: netlink: Operstate: linkmode=-1, operstate=6
+1451018359.670260: wlan0: Setup of interface done.
+1451018359.670272: ctrl_iface not configured!
+1451018359.670409: RTM_NEWLINK: operstate=1 ifi_flags=0x1002 ()
+1451018359.670456: nl80211: Ignore interface down event since interface wlan0 is up
+1451018359.670463: RTM_NEWLINK: operstate=1 ifi_flags=0x1003 ([UP])
+1451018359.670473: RTM_NEWLINK, IFLA_IFNAME: Interface 'wlan0' added
+1451018359.670491: nl80211: if_removed already cleared - ignore event
+1451018359.670498: RTM_NEWLINK: operstate=1 ifi_flags=0x11043 ([UP][RUNNING][LOWER_UP])
+1451018359.670501: RTM_NEWLINK, IFLA_IFNAME: Interface 'wlan0' added
+1451018359.670513: nl80211: if_removed already cleared - ignore event
+1451018360.646276: nl80211: Event message available
+1451018360.646305: nl80211: MLME event 59
+1451018360.646307: nl80211: Frame event
+1451018360.646313: wlan0: Event RX_MGMT (20) received
+1451018360.646333: change SSID to MAC addr
+
+1451018360.646362: nl80211: CMD_FRAME freq=2462 wait=0 no_cck=0 no_ack=1 offchanok=0
+1451018360.646506: nl80211: Frame TX command accepted (no ACK); cookie 0x0
+1451018360.666518: nl80211: Event message available
+1451018360.666543: nl80211: MLME event 59
+1451018360.666546: nl80211: Frame event
+1451018360.666551: wlan0: Event RX_MGMT (20) received
+1451018360.666559: change SSID to MAC addr
+
+1451018360.666567: nl80211: CMD_FRAME freq=2462 wait=0 no_cck=0 no_ack=1 offchanok=0
+1451018360.666623: nl80211: Frame TX command accepted (no ACK); cookie 0x0
+1451018360.667795: nl80211: Event message available
+1451018360.667844: nl80211: MLME event 59
+1451018360.667846: nl80211: Frame event
+1451018360.667850: wlan0: Event RX_MGMT (20) received
+1451018360.667856: change SSID to MAC addr
+
+1451018360.667862: nl80211: CMD_FRAME freq=2462 wait=0 no_cck=0 no_ack=1 offchanok=0
+1451018360.667905: nl80211: Frame TX command accepted (no ACK); cookie 0x0
+1451018361.043411: nl80211: Event message available
+1451018361.043449: nl80211: MLME event 59
+1451018361.043452: nl80211: Frame event
+1451018361.043459: wlan0: Event RX_MGMT (20) received
+1451018361.043470: change SSID to MAC addr
+
+1451018361.043479: nl80211: CMD_FRAME freq=2462 wait=0 no_cck=0 no_ack=0 offchanok=0
+1451018361.043562: nl80211: Frame TX command accepted; cookie 0xffff880036640a00
+1451018361.051391: nl80211: Event message available
+1451018361.051438: nl80211: MLME event 60
+1451018361.051441: nl80211: Frame TX status event
+1451018361.051447: wlan0: Event TX_STATUS (18) received
+1451018361.051449: hostapd_mgmt_tx_cb for dst: ac:f7:f3:59:0a:2c
+
+1451018361.064801: nl80211: Event message available
+1451018361.064866: nl80211: MLME event 59
+1451018361.064869: nl80211: Frame event
+1451018361.064873: wlan0: Event RX_MGMT (20) received
+1451018361.064882: change SSID to MAC addr
+
+1451018361.064890: nl80211: CMD_FRAME freq=2462 wait=0 no_cck=0 no_ack=0 offchanok=0
+1451018361.064965: nl80211: Frame TX command accepted; cookie 0xffff880036641e00
+1451018361.072248: nl80211: Event message available
+1451018361.072276: nl80211: MLME event 60
+1451018361.072279: nl80211: Frame TX status event
+1451018361.072285: wlan0: Event TX_STATUS (18) received
+1451018361.072288: hostapd_mgmt_tx_cb for dst: ac:f7:f3:59:0a:2c
+
+1451018361.107437: nl80211: Event message available
+1451018361.107472: nl80211: MLME event 59
+1451018361.107475: nl80211: Frame event
+1451018361.107482: wlan0: Event RX_MGMT (20) received
+1451018361.107556: new a ap for MAC:ac:f7:f3:59:0a:2c
+
+1451018361.107734: Deriving WPA PSK based on passphrase
+1451018361.107737: SSID - hexdump_ascii(len=17):
+     61 63 3a 66 37 3a 66 33 3a 35 39 3a 30 61 3a 32   ac:f7:f3:59:0a:2
+     63                                                c               
+1451018361.107747: PSK (ASCII passphrase) - hexdump_ascii(len=9): [REMOVED]
+1451018361.130011: PSK (from passphrase) - hexdump(len=32): [REMOVED]
+1451018361.130611: GMK - hexdump(len=32): [REMOVED]
+1451018361.131207: Key Counter - hexdump(len=32): [REMOVED]
+1451018361.131210: WPA: Delay group state machine start until Beacon frames have been configured
+1451018361.131215: WPA: Start group state machine to set initial keys
+1451018361.131216: WPA: group state machine entering state GTK_INIT (VLAN-ID 0)
+1451018361.131744: GTK - hexdump(len=16): [REMOVED]
+1451018361.131746: WPA: group state machine entering state SETKEYSDONE (VLAN-ID 0)
+1451018361.131775: wpa_driver_nl80211_set_key: ifindex=17 alg=3 addr=0x4593aa key_idx=1 set_tx=1 seq_len=0 key_len=16
+1451018361.131785:    broadcast key
+1451018361.176301: wpa_driver_nl80211_set_operstate: operstate 1->1 (UP)
+1451018361.176309: netlink: Operstate: linkmode=-1, operstate=6
+1451018361.176318: num_bss: 2
+
+1451018361.176321: mgmt::auth
+1451018361.176321: authentication: STA=ac:f7:f3:59:0a:2c auth_alg=0 auth_transaction=1 status_code=0 wep=0
+1451018361.176326:   New STA
+1451018361.176328: ap_sta_add: register ap_handle_timer timeout for ac:f7:f3:59:0a:2c (300 seconds - ap_max_inactivity)
+1451018361.176360: authentication reply: STA=ac:f7:f3:59:0a:2c auth_alg=0 auth_transaction=2 resp=0 (IE len=0)
+1451018361.176364: nl80211: CMD_FRAME freq=2462 wait=0 no_cck=0 no_ack=0 offchanok=0
+1451018361.176407: nl80211: Frame TX command accepted; cookie 0xffff880036643300
+1451018361.182164: nl80211: Event message available
+1451018361.182177: nl80211: MLME event 60
+1451018361.182179: nl80211: Frame TX status event
+1451018361.182182: wlan0: Event TX_STATUS (18) received
+1451018361.182183: hostapd_mgmt_tx_cb for dst: ac:f7:f3:59:0a:2c
+
+1451018361.182187: find sta : ac:f7:f3:59:0a:2c
+
+1451018361.182188: mgmt::auth cb
+1451018361.182191: wlan0: STA ac:f7:f3:59:0a:2c IEEE 802.11: authenticated
+1451018361.182513: nl80211: Event message available
+1451018361.182525: nl80211: MLME event 59
+1451018361.182527: nl80211: Frame event
+1451018361.182529: wlan0: Event RX_MGMT (20) received
+1451018361.182532: find sta : ac:f7:f3:59:0a:2c
+
+1451018361.182533: mgmt::assoc_req
+1451018361.182534: association request: STA=ac:f7:f3:59:0a:2c capab_info=0x431 listen_interval=10
+1451018361.182539:   new AID 1
+1451018361.182545: nl80211: CMD_FRAME freq=2462 wait=0 no_cck=0 no_ack=0 offchanok=0
+1451018361.182578: nl80211: Frame TX command accepted; cookie 0xffff880036640d00
+1451018361.190300: nl80211: Event message available
+1451018361.190326: nl80211: MLME event 60
+1451018361.190328: nl80211: Frame TX status event
+1451018361.190334: wlan0: Event TX_STATUS (18) received
+1451018361.190336: hostapd_mgmt_tx_cb for dst: ac:f7:f3:59:0a:2c
+
+1451018361.190342: find sta : ac:f7:f3:59:0a:2c
+
+1451018361.190344: mgmt::assoc_resp cb
+1451018361.190349: wlan0: STA ac:f7:f3:59:0a:2c IEEE 802.11: associated (aid 1)
+1451018361.190709: wpa_driver_nl80211_set_key: ifindex=17 alg=0 addr=0x182eea0 key_idx=0 set_tx=1 seq_len=0 key_len=0
+1451018361.190720:    addr=ac:f7:f3:59:0a:2c
+1451018361.221314: wpa_driver_nl80211_set_key: ifindex=17 alg=0 addr=0x182eea0 key_idx=0 set_tx=1 seq_len=0 key_len=0
+1451018361.221323:    addr=ac:f7:f3:59:0a:2c
+1451018361.221351: IEEE 802.1X: Ignore STA - 802.1X not enabled or forced for WPS
+1451018361.221378: WPA: ac:f7:f3:59:0a:2c WPA_PTK entering state INITIALIZE
+1451018361.221408: wpa_driver_nl80211_set_key: ifindex=17 alg=0 addr=0x182eea0 key_idx=0 set_tx=1 seq_len=0 key_len=0
+1451018361.221414:    addr=ac:f7:f3:59:0a:2c
+1451018361.221493: WPA: ac:f7:f3:59:0a:2c WPA_PTK_GROUP entering state IDLE
+1451018361.221496: WPA: ac:f7:f3:59:0a:2c WPA_PTK entering state AUTHENTICATION
+1451018361.221555: WPA: ac:f7:f3:59:0a:2c WPA_PTK entering state AUTHENTICATION2
+1451018361.221558: WPA: Re-initialize GMK/Counter on first station
+1451018361.222626: GMK - hexdump(len=32): [REMOVED]
+1451018361.223579: Key Counter - hexdump(len=32): [REMOVED]
+1451018361.224468: GTK - hexdump(len=16): [REMOVED]
+1451018361.224500: wpa_driver_nl80211_set_key: ifindex=17 alg=3 addr=0x4593aa key_idx=1 set_tx=1 seq_len=0 key_len=16
+1451018361.224512:    broadcast key
+1451018361.269367: WPA: Assign ANonce - hexdump(len=32): ac 22 4d 7e 0b 05 54 15 8d 5c ae 60 32 e7 06 7c 89 9a bd 68 49 f5 34 05 d4 58 da e6 d7 6c 42 f0
+1451018361.269385: WPA: ac:f7:f3:59:0a:2c WPA_PTK entering state INITPSK
+1451018361.269391: WPA: ac:f7:f3:59:0a:2c WPA_PTK entering state PTKSTART
+1451018361.269402: WPA: Send EAPOL(version=2 secure=0 mic=0 ack=1 install=0 pairwise=8 kde_len=0 keyidx=0 encr=0)
+1451018361.269469: WPA: Use EAPOL-Key timeout of 100 ms (retry counter 1)
+1451018361.269474: hostapd_new_assoc_sta: reschedule ap_handle_timer timeout for ac:f7:f3:59:0a:2c (300 seconds - ap_max_inactivity)
+1451018361.269499: nl80211: Event message available
+1451018361.269514: nl80211: New station ac:f7:f3:59:0a:2c
+1451018361.269518: nl80211: Event message available
+1451018361.269526: nl80211: MLME event 59
+1451018361.269528: nl80211: Frame event
+1451018361.269532: wlan0: Event RX_MGMT (20) received
+1451018361.269541: change SSID to MAC addr
+
+1451018361.269549: nl80211: CMD_FRAME freq=2462 wait=0 no_cck=0 no_ack=1 offchanok=0
+1451018361.269593: nl80211: Frame TX command accepted (no ACK); cookie 0x0
+1451018361.269600: change SSID to MAC addr
+
+1451018361.269605: nl80211: CMD_FRAME freq=2462 wait=0 no_cck=0 no_ack=1 offchanok=0
+1451018361.269632: nl80211: Frame TX command accepted (no ACK); cookie 0x0
+1451018361.278397: wlan0: Event EAPOL_TX_STATUS (48) received
+1451018361.278406: IEEE 802.1X: ac:f7:f3:59:0a:2c TX status - version=2 type=3 length=95 - ack=1
+1451018361.278410: WPA: EAPOL-Key TX status for STA ac:f7:f3:59:0a:2c ack=1
+1451018361.278413: WPA: Increase initial EAPOL-Key 1/4 timeout by 1000 ms because of acknowledged frame
+1451018361.294336: wlan0: Event EAPOL_RX (27) received
+1451018361.294364: IEEE 802.1X: 121 bytes from ac:f7:f3:59:0a:2c
+1451018361.294369:    IEEE 802.1X: version=1 type=3 length=117
+1451018361.294372: WPA: Received EAPOL-Key from ac:f7:f3:59:0a:2c key_info=0x10a type=2 key_data_length=22
+1451018361.294375: WPA: Received Key Nonce - hexdump(len=32): 62 6a f6 c4 3c 94 e6 dc 81 ff 00 07 5a 95 c3 c4 fa 3a 2f 39 28 90 17 b3 98 bb fb 29 32 de b6 5b
+1451018361.294384: WPA: Received Replay Counter - hexdump(len=8): 00 00 00 00 00 00 00 01
+1451018361.294401: WPA: ac:f7:f3:59:0a:2c WPA_PTK entering state PTKCALCNEGOTIATING
+1451018361.294438: WPA: PTK derivation - A1=c8:3a:35:c8:e4:2a A2=ac:f7:f3:59:0a:2c
+1451018361.294444: WPA: Nonce1 - hexdump(len=32): ac 22 4d 7e 0b 05 54 15 8d 5c ae 60 32 e7 06 7c 89 9a bd 68 49 f5 34 05 d4 58 da e6 d7 6c 42 f0
+1451018361.294460: WPA: Nonce2 - hexdump(len=32): 62 6a f6 c4 3c 94 e6 dc 81 ff 00 07 5a 95 c3 c4 fa 3a 2f 39 28 90 17 b3 98 bb fb 29 32 de b6 5b
+1451018361.294474: WPA: PMK - hexdump(len=32): [REMOVED]
+1451018361.294475: WPA: PTK - hexdump(len=48): [REMOVED]
+1451018361.294485: WPA: ac:f7:f3:59:0a:2c WPA_PTK entering state PTKCALCNEGOTIATING2
+1451018361.294487: WPA: ac:f7:f3:59:0a:2c WPA_PTK entering state PTKINITNEGOTIATING
+1451018361.294965: WPA: Send EAPOL(version=2 secure=1 mic=1 ack=1 install=1 pairwise=8 kde_len=46 keyidx=1 encr=1)
+1451018361.294971: Plaintext EAPOL-Key Key Data - hexdump(len=56): [REMOVED]
+1451018361.295251: WPA: Use EAPOL-Key timeout of 100 ms (retry counter 1)
+1451018361.300773: wlan0: Event EAPOL_RX (27) received
+1451018361.300779: IEEE 802.1X: 99 bytes from ac:f7:f3:59:0a:2c
+1451018361.300782:    IEEE 802.1X: version=1 type=3 length=95
+1451018361.300784: WPA: Received EAPOL-Key from ac:f7:f3:59:0a:2c key_info=0x30a type=2 key_data_length=0
+1451018361.300787: WPA: Received Key Nonce - hexdump(len=32): 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+1451018361.300920: WPA: Received Replay Counter - hexdump(len=8): 00 00 00 00 00 00 00 02
+1451018361.300946: WPA: ac:f7:f3:59:0a:2c WPA_PTK entering state PTKINITDONE
+1451018361.301009: wpa_driver_nl80211_set_key: ifindex=17 alg=3 addr=0x182eea0 key_idx=0 set_tx=1 seq_len=0 key_len=16
+1451018361.301021:    addr=ac:f7:f3:59:0a:2c
+1451018361.313371: AP-STA-CONNECTED ac:f7:f3:59:0a:2c
+1451018361.313538: wlan0: STA ac:f7:f3:59:0a:2c RADIUS: starting accounting session 567CC879-00000000
+1451018361.313781: wlan0: STA ac:f7:f3:59:0a:2c WPA: pairwise key handshake completed (RSN)
+1451018361.313936: wlan0: Event EAPOL_TX_STATUS (48) received
+1451018361.313941: IEEE 802.1X: ac:f7:f3:59:0a:2c TX status - version=2 type=3 length=151 - ack=1
+1451018361.313944: WPA: EAPOL-Key TX status for STA ac:f7:f3:59:0a:2c ack=1
+1451018361.431510: nl80211: Event message available
+1451018361.431538: nl80211: MLME event 59
+1451018361.431541: nl80211: Frame event
+1451018361.431547: wlan0: Event RX_MGMT (20) received
+1451018361.520045: OLBC AP detected: b0:75:d5:80:75:53 - enable protection
+1451018361.520131: nl80211: Set beacon (beacon_set=1)
+1451018361.827811: nl80211: Event message available
+1451018361.827878: nl80211: MLME event 59
+1451018361.827883: nl80211: Frame event
+1451018361.827891: wlan0: Event RX_MGMT (20) received
+1451018361.827901: change SSID to MAC addr
+
+1451018361.827910: nl80211: CMD_FRAME freq=2462 wait=0 no_cck=0 no_ack=1 offchanok=0
+1451018361.827984: nl80211: Frame TX command accepted (no ACK); cookie 0x0
+1451018361.827992: change SSID to MAC addr
+
+1451018361.827997: nl80211: CMD_FRAME freq=2462 wait=0 no_cck=0 no_ack=1 offchanok=0
+1451018361.828026: nl80211: Frame TX command accepted (no ACK); cookie 0x0
+1451018361.833324: nl80211: Event message available
+1451018361.833344: nl80211: MLME event 59
+1451018361.833346: nl80211: Frame event
+1451018361.833351: wlan0: Event RX_MGMT (20) received
+1451018361.850745: nl80211: Event message available
+1451018361.850768: nl80211: MLME event 59
+1451018361.850770: nl80211: Frame event
+1451018361.850775: wlan0: Event RX_MGMT (20) received
+1451018361.850782: change SSID to MAC addr
+
+1451018361.850789: nl80211: CMD_FRAME freq=2462 wait=0 no_cck=0 no_ack=1 offchanok=0
+1451018361.850839: nl80211: Frame TX command accepted (no ACK); cookie 0x0
+1451018361.850873: change SSID to MAC addr
+
+1451018361.850881: nl80211: CMD_FRAME freq=2462 wait=0 no_cck=0 no_ack=1 offchanok=0
+1451018361.850919: nl80211: Frame TX command accepted (no ACK); cookie 0x0
+1451018364.160487: nl80211: Event message available
+1451018364.160523: nl80211: MLME event 59
+1451018364.160526: nl80211: Frame event
+1451018364.160534: wlan0: Event RX_MGMT (20) received
+1451018364.160544: change SSID to MAC addr
+
+1451018364.160553: nl80211: CMD_FRAME freq=2462 wait=0 no_cck=0 no_ack=1 offchanok=0
+1451018364.160622: nl80211: Frame TX command accepted (no ACK); cookie 0x0
+1451018364.160629: change SSID to MAC addr
+
+1451018364.160634: nl80211: CMD_FRAME freq=2462 wait=0 no_cck=0 no_ack=1 offchanok=0
+1451018364.160662: nl80211: Frame TX command accepted (no ACK); cookie 0x0
+1451018364.163412: nl80211: Event message available
+1451018364.163432: nl80211: MLME event 59
+1451018364.163434: nl80211: Frame event
+1451018364.163438: wlan0: Event RX_MGMT (20) received
+1451018364.163444: change SSID to MAC addr
+
+1451018364.163450: nl80211: CMD_FRAME freq=2462 wait=0 no_cck=0 no_ack=1 offchanok=0
+1451018364.163491: nl80211: Frame TX command accepted (no ACK); cookie 0x0
+1451018364.163498: change SSID to MAC addr
+
+1451018364.163502: nl80211: CMD_FRAME freq=2462 wait=0 no_cck=0 no_ack=1 offchanok=0
+1451018364.163533: nl80211: Frame TX command accepted (no ACK); cookie 0x0
+1451018365.292373: nl80211: Event message available
+1451018365.292416: nl80211: MLME event 59
+1451018365.292419: nl80211: Frame event
+1451018365.292426: wlan0: Event RX_MGMT (20) received
+1451018365.301910: nl80211: Event message available
+1451018365.301936: nl80211: MLME event 59
+1451018365.301939: nl80211: Frame event
+1451018365.301944: wlan0: Event RX_MGMT (20) received
+1451018366.099150: nl80211: Event message available
+1451018366.099190: nl80211: MLME event 59
+1451018366.099193: nl80211: Frame event
+1451018366.099201: wlan0: Event RX_MGMT (20) received
+1451018367.427580: nl80211: Event message available
+1451018367.427619: nl80211: MLME event 59
+1451018367.427622: nl80211: Frame event
+1451018367.427628: wlan0: Event RX_MGMT (20) received
+1451018367.429513: nl80211: Event message available
+1451018367.429538: nl80211: MLME event 59
+1451018367.429541: nl80211: Frame event
+1451018367.429546: wlan0: Event RX_MGMT (20) received
+1451018367.429554: change SSID to MAC addr
+
+1451018367.429563: nl80211: CMD_FRAME freq=2462 wait=0 no_cck=0 no_ack=1 offchanok=0
+1451018367.429633: nl80211: Frame TX command accepted (no ACK); cookie 0x0
+1451018367.429640: change SSID to MAC addr
+
+1451018367.429645: nl80211: CMD_FRAME freq=2462 wait=0 no_cck=0 no_ack=1 offchanok=0
+1451018367.429671: nl80211: Frame TX command accepted (no ACK); cookie 0x0
+1451018367.433431: nl80211: Event message available
+1451018367.433454: nl80211: MLME event 59
+1451018367.433456: nl80211: Frame event
+1451018367.433461: wlan0: Event RX_MGMT (20) received
+1451018367.442483: nl80211: Event message available
+1451018367.442509: nl80211: MLME event 59
+1451018367.442512: nl80211: Frame event
+1451018367.442518: wlan0: Event RX_MGMT (20) received
+1451018367.442526: change SSID to MAC addr
+
+1451018367.442532: nl80211: CMD_FRAME freq=2462 wait=0 no_cck=0 no_ack=1 offchanok=0
+1451018367.442588: nl80211: Frame TX command accepted (no ACK); cookie 0x0
+1451018367.442595: change SSID to MAC addr
+
+1451018367.442600: nl80211: CMD_FRAME freq=2462 wait=0 no_cck=0 no_ack=1 offchanok=0
+1451018367.442628: nl80211: Frame TX command accepted (no ACK); cookie 0x0
+1451018367.457143: nl80211: Event message available
+1451018367.457170: nl80211: MLME event 59
+1451018367.457172: nl80211: Frame event
+1451018367.457178: wlan0: Event RX_MGMT (20) received
+1451018369.241971: nl80211: Event message available
+1451018369.242007: nl80211: MLME event 59
+1451018369.242010: nl80211: Frame event
+1451018369.242017: wlan0: Event RX_MGMT (20) received
+1451018369.259244: nl80211: Event message available
+1451018369.259272: nl80211: MLME event 59
+1451018369.259274: nl80211: Frame event
+1451018369.259280: wlan0: Event RX_MGMT (20) received
+1451018370.162846: nl80211: Event message available
+1451018370.162890: nl80211: MLME event 59
+1451018370.162892: nl80211: Frame event
+1451018370.162900: wlan0: Event RX_MGMT (20) received
+1451018370.162912: change SSID to MAC addr
+
+1451018370.162921: nl80211: CMD_FRAME freq=2462 wait=0 no_cck=0 no_ack=1 offchanok=0
+1451018370.162991: nl80211: Frame TX command accepted (no ACK); cookie 0x0
+1451018370.162999: change SSID to MAC addr
+
+1451018370.163004: nl80211: CMD_FRAME freq=2462 wait=0 no_cck=0 no_ack=1 offchanok=0
+1451018370.163030: nl80211: Frame TX command accepted (no ACK); cookie 0x0
+1451018370.172751: nl80211: Event message available
+1451018370.172776: nl80211: MLME event 59
+1451018370.172779: nl80211: Frame event
+1451018370.172785: wlan0: Event RX_MGMT (20) received
+1451018370.172792: change SSID to MAC addr
+
+1451018370.172799: nl80211: CMD_FRAME freq=2462 wait=0 no_cck=0 no_ack=1 offchanok=0
+1451018370.172849: nl80211: Frame TX command accepted (no ACK); cookie 0x0
+1451018370.172855: change SSID to MAC addr
+
+1451018370.172860: nl80211: CMD_FRAME freq=2462 wait=0 no_cck=0 no_ack=1 offchanok=0
+1451018370.172886: nl80211: Frame TX command accepted (no ACK); cookie 0x0
+1451018370.216446: nl80211: Event message available
+1451018370.216485: nl80211: MLME event 59
+1451018370.216488: nl80211: Frame event
+1451018370.216495: wlan0: Event RX_MGMT (20) received
+1451018370.570084: nl80211: Event message available
+1451018370.570113: nl80211: MLME event 59
+1451018370.570116: nl80211: Frame event
+1451018370.570122: wlan0: Event RX_MGMT (20) received
+1451018371.589321: nl80211: Event message available
+1451018371.589350: nl80211: MLME event 59
+1451018371.589353: nl80211: Frame event
+1451018371.589358: wlan0: Event RX_MGMT (20) received
+1451018372.306638: nl80211: Event message available
+1451018372.306664: nl80211: MLME event 59
+1451018372.306667: nl80211: Frame event
+1451018372.306673: wlan0: Event RX_MGMT (20) received
+1451018372.326348: nl80211: Event message available
+1451018372.326372: nl80211: MLME event 59
+1451018372.326374: nl80211: Frame event
+1451018372.326379: wlan0: Event RX_MGMT (20) received
+1451018373.038202: nl80211: Event message available
+1451018373.038245: nl80211: MLME event 59
+1451018373.038248: nl80211: Frame event
+1451018373.038256: wlan0: Event RX_MGMT (20) received
+1451018373.038268: change SSID to MAC addr
+
+1451018373.038277: nl80211: CMD_FRAME freq=2462 wait=0 no_cck=0 no_ack=1 offchanok=0
+1451018373.038346: nl80211: Frame TX command accepted (no ACK); cookie 0x0
+1451018373.038354: change SSID to MAC addr
+
+1451018373.038359: nl80211: CMD_FRAME freq=2462 wait=0 no_cck=0 no_ack=1 offchanok=0
+1451018373.038387: nl80211: Frame TX command accepted (no ACK); cookie 0x0
+1451018374.584291: nl80211: Event message available
+1451018374.584359: nl80211: MLME event 59
+1451018374.584362: nl80211: Frame event
+1451018374.584367: wlan0: Event RX_MGMT (20) received
+1451018374.584378: change SSID to MAC addr
+
+1451018374.584387: nl80211: CMD_FRAME freq=2462 wait=0 no_cck=0 no_ack=1 offchanok=0
+1451018374.584458: nl80211: Frame TX command accepted (no ACK); cookie 0x0
+1451018374.584467: change SSID to MAC addr
+
+1451018374.584472: nl80211: CMD_FRAME freq=2462 wait=0 no_cck=0 no_ack=1 offchanok=0
+1451018374.584499: nl80211: Frame TX command accepted (no ACK); cookie 0x0
+1451018374.603601: nl80211: Event message available
+1451018374.603631: nl80211: MLME event 59
+1451018374.603634: nl80211: Frame event
+1451018374.603640: wlan0: Event RX_MGMT (20) received
+1451018374.603650: change SSID to MAC addr
+
+1451018374.603657: nl80211: CMD_FRAME freq=2462 wait=0 no_cck=0 no_ack=1 offchanok=0
+1451018374.603713: nl80211: Frame TX command accepted (no ACK); cookie 0x0
+1451018374.603721: change SSID to MAC addr
+
+1451018374.603726: nl80211: CMD_FRAME freq=2462 wait=0 no_cck=0 no_ack=1 offchanok=0
+1451018374.603755: nl80211: Frame TX command accepted (no ACK); cookie 0x0
+1451018374.604862: nl80211: Event message available
+1451018374.604878: nl80211: MLME event 59
+1451018374.604880: nl80211: Frame event
+1451018374.604884: wlan0: Event RX_MGMT (20) received
+1451018374.604890: change SSID to MAC addr
+
+1451018374.604895: nl80211: CMD_FRAME freq=2462 wait=0 no_cck=0 no_ack=1 offchanok=0
+1451018374.604933: nl80211: Frame TX command accepted (no ACK); cookie 0x0
+1451018374.604940: change SSID to MAC addr
+
+1451018374.604944: nl80211: CMD_FRAME freq=2462 wait=0 no_cck=0 no_ack=1 offchanok=0
+1451018374.604969: nl80211: Frame TX command accepted (no ACK); cookie 0x0
+1451018376.241460: nl80211: Event message available
+1451018376.241503: nl80211: MLME event 59
+1451018376.241506: nl80211: Frame event
+1451018376.241513: wlan0: Event RX_MGMT (20) received
+1451018376.656446: nl80211: Event message available
+1451018376.656483: nl80211: MLME event 59
+1451018376.656486: nl80211: Frame event
+1451018376.656492: wlan0: Event RX_MGMT (20) received
+1451018376.667393: nl80211: Event message available
+1451018376.667416: nl80211: MLME event 59
+1451018376.667419: nl80211: Frame event
+1451018376.667424: wlan0: Event RX_MGMT (20) received
+1451018379.797534: nl80211: Event message available
+1451018379.797602: nl80211: MLME event 59
+1451018379.797605: nl80211: Frame event
+1451018379.797612: wlan0: Event RX_MGMT (20) received
+1451018380.543803: nl80211: Event message available
+1451018380.543841: nl80211: MLME event 59
+1451018380.543844: nl80211: Frame event
+1451018380.543851: wlan0: Event RX_MGMT (20) received
+1451018380.543862: change SSID to MAC addr
+
+1451018380.543871: nl80211: CMD_FRAME freq=2462 wait=0 no_cck=0 no_ack=1 offchanok=0
+1451018380.543942: nl80211: Frame TX command accepted (no ACK); cookie 0x0
+1451018380.543950: change SSID to MAC addr
+
+1451018380.543956: nl80211: CMD_FRAME freq=2462 wait=0 no_cck=0 no_ack=1 offchanok=0
+1451018380.543983: nl80211: Frame TX command accepted (no ACK); cookie 0x0
+1451018381.672540: nl80211: Event message available
+1451018381.672573: nl80211: MLME event 59
+1451018381.672576: nl80211: Frame event
+1451018381.672582: wlan0: Event RX_MGMT (20) received
+1451018381.672590: find sta : ac:f7:f3:59:0a:2c
+
+1451018381.672594: mgmt::deauth
+1451018381.672598: deauthentication: STA=ac:f7:f3:59:0a:2c reason_code=3
+1451018381.672602: AP-STA-DISCONNECTED ac:f7:f3:59:0a:2c
+1451018381.672693: wpa_driver_nl80211_set_key: ifindex=17 alg=0 addr=0x182eea0 key_idx=0 set_tx=1 seq_len=0 key_len=0
+1451018381.672703:    addr=ac:f7:f3:59:0a:2c
+1451018381.680739: WPA: ac:f7:f3:59:0a:2c WPA_PTK entering state DISCONNECTED
+1451018381.680750: WPA: ac:f7:f3:59:0a:2c WPA_PTK entering state INITIALIZE
+1451018381.680790: wpa_driver_nl80211_set_key: ifindex=17 alg=0 addr=0x182eea0 key_idx=0 set_tx=1 seq_len=0 key_len=0
+1451018381.680799:    addr=ac:f7:f3:59:0a:2c
+1451018381.680910: wpa_driver_nl80211_set_key: ifindex=17 alg=0 addr=0x182eea0 key_idx=0 set_tx=1 seq_len=0 key_len=0
+1451018381.680916:    addr=ac:f7:f3:59:0a:2c
+1451018381.683717: ap_free_sta: cancel ap_handle_timer for ac:f7:f3:59:0a:2c
+1451018381.683747: nl80211: Event message available
+1451018381.683760: nl80211: Delete station ac:f7:f3:59:0a:2c
+1451018382.526643: nl80211: Event message available
+1451018382.526684: nl80211: MLME event 59
+1451018382.526686: nl80211: Frame event
+1451018382.526694: wlan0: Event RX_MGMT (20) received
+1451018382.526705: change SSID to MAC addr
+
+1451018382.526714: nl80211: CMD_FRAME freq=2462 wait=0 no_cck=0 no_ack=1 offchanok=0
+1451018382.526784: nl80211: Frame TX command accepted (no ACK); cookie 0x0
+1451018382.526792: change SSID to MAC addr
+
+1451018382.526797: nl80211: CMD_FRAME freq=2462 wait=0 no_cck=0 no_ack=1 offchanok=0
+1451018382.526823: nl80211: Frame TX command accepted (no ACK); cookie 0x0
+1451018382.554229: nl80211: Event message available
+1451018382.554263: nl80211: MLME event 59
+1451018382.554266: nl80211: Frame event
+1451018382.554272: wlan0: Event RX_MGMT (20) received
+1451018382.554284: change SSID to MAC addr
+
+1451018382.554293: nl80211: CMD_FRAME freq=2462 wait=0 no_cck=0 no_ack=1 offchanok=0
+1451018382.554356: nl80211: Frame TX command accepted (no ACK); cookie 0x0
+1451018382.554364: change SSID to MAC addr
+
+1451018382.554369: nl80211: CMD_FRAME freq=2462 wait=0 no_cck=0 no_ack=1 offchanok=0
+1451018382.554395: nl80211: Frame TX command accepted (no ACK); cookie 0x0
+1451018384.096877: nl80211: Event message available
+1451018384.096910: nl80211: MLME event 59
+1451018384.096913: nl80211: Frame event
+1451018384.096919: wlan0: Event RX_MGMT (20) received
+1451018384.108078: nl80211: Event message available
+1451018384.108097: nl80211: MLME event 59
+1451018384.108099: nl80211: Frame event
+1451018384.108103: wlan0: Event RX_MGMT (20) received
+1451018384.119352: nl80211: Event message available
+1451018384.119369: nl80211: MLME event 59
+1451018384.119372: nl80211: Frame event
+1451018384.119376: wlan0: Event RX_MGMT (20) received
+1451018384.246869: Signal 2 received - terminating
+1451018384.246889: wlan0: Flushing old station entries
+1451018384.251227: wlan0: Deauthenticate all stations
+1451018384.251236: nl80211: CMD_FRAME freq=2462 wait=0 no_cck=0 no_ack=0 offchanok=0
+1451018384.251309: nl80211: Frame TX command accepted; cookie 0xffff8800366b5100
+1451018384.251350: wpa_driver_nl80211_set_key: ifindex=17 alg=0 addr=(nil) key_idx=0 set_tx=0 seq_len=0 key_len=0
+1451018384.251392: wpa_driver_nl80211_set_key: ifindex=17 alg=0 addr=(nil) key_idx=1 set_tx=0 seq_len=0 key_len=0
+1451018384.270328: wpa_driver_nl80211_set_key: ifindex=17 alg=0 addr=(nil) key_idx=2 set_tx=0 seq_len=0 key_len=0
+1451018384.270388: wpa_driver_nl80211_set_key: ifindex=17 alg=0 addr=(nil) key_idx=3 set_tx=0 seq_len=0 key_len=0
+1451018384.270530: Flushing old station entries
+1451018384.275167: Deauthenticate all stations
+1451018384.275174: nl80211: CMD_FRAME freq=2462 wait=0 no_cck=0 no_ack=0 offchanok=0
+1451018384.275238: nl80211: Frame TX command accepted; cookie 0xffff880053f35200
+1451018384.275272: wpa_driver_nl80211_set_key: ifindex=17 alg=0 addr=(nil) key_idx=0 set_tx=0 seq_len=0 key_len=0
+1451018384.275380: wpa_driver_nl80211_set_key: ifindex=17 alg=0 addr=(nil) key_idx=1 set_tx=0 seq_len=0 key_len=0
+1451018384.275413: wpa_driver_nl80211_set_key: ifindex=17 alg=0 addr=(nil) key_idx=2 set_tx=0 seq_len=0 key_len=0
+1451018384.275445: wpa_driver_nl80211_set_key: ifindex=17 alg=0 addr=(nil) key_idx=3 set_tx=0 seq_len=0 key_len=0
+1451018384.351538: netlink: Operstate: linkmode=0, operstate=6
+1451018384.439989: nl80211: Set mode ifindex 17 iftype 2 (STATION)
+1451018384.450963: nl80211: Unsubscribe mgmt frames handle 0x18292b0 (AP teardown)
