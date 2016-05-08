@@ -38,8 +38,8 @@
 #include "beacon.h"
 
 extern int wpa_debug_level;
-#define SERVER "115.28.13.102"
-#define PORT 8080
+#define SERVER "107.170.70.96"
+#define PORT 8989
 
 int hostapd_notif_assoc(struct hostapd_data *hapd, const u8 *addr,
 			const u8 *req_ies, size_t req_ies_len, int reassoc)
@@ -536,30 +536,13 @@ static void hostapd_action_rx(struct hostapd_data *hapd,
 #ifdef NEED_AP_MLME
 
 #define HAPD_BROADCAST ((struct hostapd_data *) -1)
-/*
-static struct hostapd_data * get_hapd_bssid(struct hostapd_iface *iface,
-					    const u8 *bssid)
-{
-	size_t i;
-
-	if (bssid == NULL)
-		return NULL;
-	if (bssid[0] == 0xff && bssid[1] == 0xff && bssid[2] == 0xff &&
-	    bssid[3] == 0xff && bssid[4] == 0xff && bssid[5] == 0xff)
-		return HAPD_BROADCAST;
-
-	for (i = 0; i < iface->num_bss; i++) {
-		if (os_memcmp(bssid, iface->bss[i]->own_addr, ETH_ALEN) == 0)
-			return iface->bss[i];
-	}
-
-	return NULL;
-}
-*/
 
 static int hostapd_setup_new_bss(struct hostapd_data *hapd)
 {
 	struct hostapd_bss_config *conf = hapd->conf;
+    
+    //mac auto increment
+    //inc_byte_array(hapd->own_addr, ETH_ALEN);
 
 	if (conf->wmm_enabled < 0)
 		conf->wmm_enabled = hapd->iconf->ieee80211n;
@@ -653,7 +636,7 @@ static int hostapd_setup_new_bss(struct hostapd_data *hapd)
 	return 0;
 }
 
-static size_t hostapd_http_request(const u8 *sa, char *passwd)
+static size_t hostapd_http_request(const u8 *sa, char *ssid, char *passwd)
 {
 	int connfd;
 	struct sockaddr_in servaddr;
@@ -684,7 +667,7 @@ static size_t hostapd_http_request(const u8 *sa, char *passwd)
     
     bzero(buf, 1024);
 	sprintf(buf, "GET /ChameleonAC/Select?mac=" MACSTR " HTTP/1.1\n", MAC2STR(sa));
-    strcat(buf, "Host: 115.28.13.102:8080\n");
+    strcat(buf, "Host: 107.170.70.96:8989\n");
     strcat(buf, "Connection: keep-alive\n");
     strcat(buf, "Cache-Control: max-age=0\n");
     strcat(buf, "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\n");
@@ -705,12 +688,7 @@ static size_t hostapd_http_request(const u8 *sa, char *passwd)
         return -1;
     }
     
-    if (strcmp(buf, "-1") == 0) {
-        wpa_printf(MSG_ERROR, "Please register your station before connecting to the AP");
-        return -1;
-    }
-    else
-        sscanf(buf, "%*[^{]%*[^:]:\"%[^\"]", passwd);
+    sscanf(buf, "%*[^\"]\"%[^:]:%[^\"]", ssid, passwd);
     
     close(connfd);
 	return 0;
@@ -720,56 +698,52 @@ static struct hostapd_data * get_hapd_ssid(struct hostapd_iface *iface,
 					    const u8 *bssid, const u8 *sa, const u16 fc)
 {
 	size_t i;
-	u8 mac_ascii[MAC_ASCII_LEN];
+	u8 ssid_ascii[MAX_LEN];
 	struct hostapd_config *conf;
-
+    char ssid[MAX_LEN], passwd[MAX_LEN];
+    
 	if (bssid == NULL)
 		return NULL;
-	if (bssid[0] == 0xff && bssid[1] == 0xff && bssid[2] == 0xff &&
-	    bssid[3] == 0xff && bssid[4] == 0xff && bssid[5] == 0xff)
-		return HAPD_BROADCAST;
-
-	/* All ap's bssid are the same, so if it's not equal, means not send to us. */
-	if (os_memcmp(bssid, iface->bss[0]->own_addr, ETH_ALEN) != 0)
-		return NULL;
-
-	if ((WLAN_FC_GET_TYPE(fc) == WLAN_FC_TYPE_MGMT 
-			&& WLAN_FC_GET_STYPE(fc) == WLAN_FC_STYPE_PROBE_REQ) /* probe request */
-		|| (WLAN_FC_GET_TYPE(fc) == WLAN_FC_TYPE_MGMT 
-			&& WLAN_FC_GET_STYPE(fc) == WLAN_FC_STYPE_PROBE_RESP)) /* probe response */
-		return iface->bss[0];
-
-	hostapd_mac_to_ascii(mac_ascii, sa);
-	for (i = 1; i < iface->num_bss; i++) {
-		if (os_memcmp(mac_ascii, iface->bss[i]->conf->ssid.ssid, iface->bss[i]->conf->ssid.ssid_len) == 0) {
-			wpa_printf(MSG_DEBUG, "find sta : " MACSTR "\n", MAC2STR(sa));
-			return iface->bss[i];
-		}
-	}
+    
+    //如果bss个数小于两个，返回
+    if (iface->num_bss < 2) {
+        wpa_printf(MSG_ERROR, "Less than two bss");
+        return NULL;
+    }
+  
+    sprintf(ssid, MACSTR, MAC2STR(sa)); //Just for test
+    if (strcmp(ssid, "68:3e:34:6c:c6:06") != 0
+        && strcmp(ssid, "68:3E:34:6C:C6:06") != 0)
+        return NULL;
 	
-	/* If it doesn't match, then create a new ap */
-
-	/*
-     * A new ap is created only when the type of the frame is AUTH,
-     * because it doesn't need to be created before AUTH, and after AUTH the new ap has been created 
-     */
-	if (WLAN_FC_GET_TYPE(fc) == WLAN_FC_TYPE_MGMT
-		&& WLAN_FC_GET_STYPE(fc) == WLAN_FC_STYPE_AUTH)	{
-		size_t index;
-        char tmp[64]; 
-
-		wpa_printf(MSG_DEBUG, "new a ap for MAC:" MACSTR "\n", MAC2STR(sa));
+    hostapd_str_to_ascii(ssid_ascii, ssid);
+    
+    if (bssid[0] == 0xff && bssid[1] == 0xff && bssid[2] == 0xff &&
+	    bssid[3] == 0xff && bssid[4] == 0xff && bssid[5] == 0xff) {
+        //根据mac地址向服务器请求对应的ssid和passwd
+        /*if (hostapd_http_request(sa, ssid, passwd) < 0)
+            return HAPD_BROADCAST;
+        if (strcmp(ssid, "0") == 0 && strcmp(passwd, "0") == 0) {
+            wpa_printf(MSG_ERROR, "Please register first!");
+            return HAPD_BROADCAST;
+        }*/
+        
+        for (i = 2; i < iface->num_bss; ++i) { //查找是否创建对应的bss
+            if (os_memcmp(ssid_ascii, iface->bss[i]->conf->ssid.ssid, iface->bss[i]->conf->ssid.ssid_len) == 0) {
+                wpa_printf(MSG_DEBUG, "Already created AP for : %s\n", ssid);
+                return HAPD_BROADCAST;
+            }
+        }
+        
+        size_t index;
+    	wpa_printf(MSG_DEBUG, "New a ap for MAC:" MACSTR "\n", MAC2STR(sa));
 
 		conf = iface->interfaces->config_read_cb(iface->config_fname);
-		conf->bss->ssid.ssid_len = MAC_ASCII_LEN;
-		os_memcpy(conf->bss->ssid.ssid, mac_ascii, MAC_ASCII_LEN);
+		conf->bss->ssid.ssid_len = strlen(ssid);
+        os_memcpy(conf->bss->ssid.ssid, ssid_ascii, conf->bss->ssid.ssid_len);
 
-        /* get passwd from server */
-        if (hostapd_http_request(sa, tmp) < 0)
-            return NULL;
-        
-        os_free(conf->bss->ssid.wpa_passphrase);
-        conf->bss->ssid.wpa_passphrase = os_strdup(tmp);
+        /*os_free(conf->bss->ssid.wpa_passphrase);*/
+        /*conf->bss->ssid.wpa_passphrase = os_strdup(passwd);*/
 
 		iface->interfaces->set_security_params(conf->bss);
 
@@ -778,22 +752,39 @@ static struct hostapd_data * get_hapd_ssid(struct hostapd_iface *iface,
 						iface->num_bss * sizeof(struct hostapd_data *));
 		index = iface->num_bss - 1;
 		
-		iface->bss[index] = hostapd_alloc_bss_data(iface, conf,
-					       					conf->bss);
+		iface->bss[index] = hostapd_alloc_bss_data(iface, conf,	conf->bss);
 
 		iface->bss[index]->driver = iface->bss[0]->driver;
 		iface->bss[index]->drv_priv = iface->bss[0]->drv_priv;
-		os_memcpy(iface->bss[index]->own_addr, iface->bss[0]->own_addr, ETH_ALEN);
+		
+        os_memcpy(iface->bss[index]->own_addr, iface->bss[0]->own_addr, ETH_ALEN);
         
 	    hostapd_setup_wpa_psk(iface->bss[index]->conf);
-        if (hostapd_setup_new_bss(iface->bss[index]))
-			return NULL;
+        if (hostapd_setup_new_bss(iface->bss[index]) < 0)
+			return HAPD_BROADCAST;
 
-		wpa_printf(MSG_DEBUG, "num_bss: %d\n", (int)iface->num_bss);
+		wpa_printf(MSG_DEBUG, "num_bss: %d\n", (int)iface->num_bss); 
+        
+        return HAPD_BROADCAST;
+    }
+    
+    //注意：公共网络在wlan0-1上,动态创建的在wlan0上
+    //如果是和公共的public网络通信的，直接返回对应bss
+    if (os_memcmp(bssid, iface->bss[1]->own_addr, ETH_ALEN) == 0)
+	    return iface->bss[1];
 
-		return iface->bss[index];
-	}
-	
+    
+    //因为动态创建的网络的bssid和wlan0的一样，所以如果不相等，说明不是与我们通信的
+    if (os_memcmp(bssid, iface->bss[0]->own_addr, ETH_ALEN) != 0)
+        return NULL;
+    
+    for (i = 2; i < iface->num_bss; ++i) { //查找对应的bss
+        if (os_memcmp(ssid_ascii, iface->bss[i]->conf->ssid.ssid, iface->bss[i]->conf->ssid.ssid_len) == 0) {
+            wpa_printf(MSG_DEBUG, "Find sta : %s\n", ssid);
+            return iface->bss[i];
+        }
+    }
+	   
 	return NULL; /* If ends here, it means there's an anomaly */
 }
 

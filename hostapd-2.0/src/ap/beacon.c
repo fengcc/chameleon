@@ -195,7 +195,6 @@ static u8 * hostapd_gen_probe_resp(struct hostapd_data *hapd,
 	struct ieee80211_mgmt *resp;
 	u8 *pos, *epos;
 	size_t buflen;
-    u8 mac_ascii[MAC_ASCII_LEN];
 
 #define MAX_PROBERESP_LEN 768
 	buflen = MAX_PROBERESP_LEN;
@@ -231,17 +230,11 @@ static u8 * hostapd_gen_probe_resp(struct hostapd_data *hapd,
 
 	pos = resp->u.probe_resp.variable;
 	*pos++ = WLAN_EID_SSID;
-//	*pos++ = hapd->conf->ssid.ssid_len;
-//	os_memcpy(pos, hapd->conf->ssid.ssid, hapd->conf->ssid.ssid_len);
-//	pos += hapd->conf->ssid.ssid_len;
+	*pos++ = hapd->conf->ssid.ssid_len;
+	os_memcpy(pos, hapd->conf->ssid.ssid, hapd->conf->ssid.ssid_len);
+	pos += hapd->conf->ssid.ssid_len;
 
-    //MAC地址存放在结构体struct ieee80211_mgmt的成员sa[6]中,先要将其转换成对应的ASCII码
-    hostapd_mac_to_ascii(mac_ascii, req->sa);
-    *pos++ = MAC_ASCII_LEN;
-    os_memcpy(pos, mac_ascii, MAC_ASCII_LEN);
-    pos += MAC_ASCII_LEN;
-
-	/* Supported rates */
+   	/* Supported rates */
 	pos = hostapd_eid_supp_rates(hapd, pos);
 
 	/* DS Params */
@@ -331,15 +324,13 @@ static enum ssid_match_result ssid_match(struct hostapd_data *hapd,
 {
 	const u8 *pos, *end;
 	int wildcard = 0;
-	u8 mac_ascii[MAC_ASCII_LEN];
 
 	if (ssid_len == 0)
 		wildcard = 1;
-	hostapd_mac_to_ascii(mac_ascii, addr);
-    if (ssid_len == MAC_ASCII_LEN &&
-            os_memcmp(ssid, mac_ascii, MAC_ASCII_LEN) == 0)
+	if (ssid_len == hapd->conf->ssid.ssid_len &&
+	    os_memcmp(ssid, hapd->conf->ssid.ssid, ssid_len) == 0)
 		return EXACT_SSID_MATCH;
-
+    
 	if (ssid_list == NULL)
 		return wildcard ? WILDCARD_SSID_MATCH : NO_SSID_MATCH;
 
