@@ -196,6 +196,13 @@ struct hostapd_data {
 #endif /* CONFIG_SQLITE */
 };
 
+struct sta_ssid {
+    u8 mac[6];
+    char *ssid;
+    char *passwd;
+    int count;
+    struct sta_ssid *next;
+};
 
 /**
  * struct hostapd_iface - hostapd per-interface data structure
@@ -216,6 +223,7 @@ struct hostapd_iface {
 
 	unsigned int drv_flags;
 
+    struct sta_ssid *ssid_hash[STA_HASH_SIZE];
 	/*
 	 * A bitmap of supported protocols for probe response offload. See
 	 * struct wpa_driver_capa in driver.h

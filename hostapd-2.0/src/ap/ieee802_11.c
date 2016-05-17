@@ -37,14 +37,6 @@
 #include "wnm_ap.h"
 #include "ieee802_11.h"
 
-void hostapd_str_to_ascii(u8 *ascii, const char *str)
-{
-    int i, len = strlen(str);
-
-    for (i = 0; i< len; i++)
-        ascii[i] = (u8)str[i];
-}
-
 u8 * hostapd_eid_supp_rates(struct hostapd_data *hapd, u8 *eid)
 {
 	u8 *pos = eid;

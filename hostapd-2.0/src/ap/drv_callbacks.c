@@ -701,11 +701,63 @@ static size_t hostapd_http_request(const u8 *sa, char *ssid, char *passwd)
 	return 0;
 }
 
+static int hostapd_get_ssid_passwd(struct hostapd_iface *iface, const u8 *sa, char *ssid, char *passwd)
+{
+    struct sta_ssid *s; 
+
+    s = iface->ssid_hash[STA_HASH(sa)];
+    while (s != NULL && os_memcmp(s->mac, sa, 6) != 0)
+		s = s->next;
+    
+    os_memset(ssid, 0, MAX_LEN);
+    os_memset(passwd, 0, MAX_LEN);
+    if (s == NULL) {
+        if (hostapd_http_request(sa, ssid, passwd) < 0)
+            return -1;
+        if (os_strlen(ssid) == 0 || os_strlen(passwd) == 0)
+            return -1;
+    
+        s = os_zalloc(sizeof(struct sta_ssid));
+        os_memcpy(s->mac, sa, 6);
+        s->ssid = os_strdup(ssid);
+        s->passwd = os_strdup(passwd);
+        s->count = 0; 
+        
+        s->next = iface->ssid_hash[STA_HASH(sa)];
+	    iface->ssid_hash[STA_HASH(sa)] = s;
+   
+        return 0;
+    }
+    
+    if (os_strcmp(s->ssid, "0") == 0 && os_strcmp(s->passwd, "0") == 0) {
+        s->count++;
+       if (s->count > 6) { // update sta info
+            s->count = 0;
+            if (hostapd_http_request(sa, ssid, passwd) < 0)
+                goto case1;
+            if (os_strlen(ssid) == 0 || os_strlen(passwd) == 0
+                || (os_strcmp(ssid, "0") == 0 && os_strcmp(passwd, "0") == 0))
+                goto case1;
+            
+            os_free(s->ssid);
+            os_free(s->passwd);
+            s->ssid = os_strdup(ssid);
+            s->passwd = os_strdup(passwd);
+       } 
+    }
+
+case1: 
+    os_memcpy(ssid, s->ssid, os_strlen(s->ssid)); 
+    os_memcpy(passwd, s->passwd, os_strlen(s->passwd));
+
+    return 0;
+}
+
 static struct hostapd_data * get_hapd_ssid(struct hostapd_iface *iface,
 					    const u8 *bssid, const u8 *sa, const u16 fc)
 {
 	size_t i;
-	u8 ssid_ascii[MAX_LEN];
+	u8 ssid_u8[MAX_LEN];
 	struct hostapd_config *conf;
     char ssid[MAX_LEN], passwd[MAX_LEN];
     size_t index;
@@ -718,39 +770,25 @@ static struct hostapd_data * get_hapd_ssid(struct hostapd_iface *iface,
         wpa_printf(MSG_ERROR, "Less than two bss");
         return NULL;
     }
-    
-    os_memset(ssid, 0, MAX_LEN);
-    os_memset(passwd, 0, MAX_LEN);
-    
-    /*sprintf(ssid, MACSTR, MAC2STR(sa)); //Just for test
-    if (os_strcmp(ssid, "68:3e:34:6c:c6:06") != 0
-        && os_strcmp(ssid, "68:3E:34:6C:C6:06") != 0)
-        return NULL;
-   */ 
-
+   
     if (bssid[0] == 0xff && bssid[1] == 0xff && bssid[2] == 0xff &&
 	    bssid[3] == 0xff && bssid[4] == 0xff && bssid[5] == 0xff) {
         //根据mac地址向服务器请求对应的ssid和passwd
-        if (hostapd_http_request(sa, ssid, passwd) < 0)
+        if (hostapd_get_ssid_passwd(iface, sa, ssid, passwd) < 0)
             return HAPD_BROADCAST;
-        if (os_strlen(ssid) == 0 || os_strlen(passwd) == 0
-            || (os_strcmp(ssid, "0") == 0 && os_strcmp(passwd, "0") == 0)) {
+        if (os_strcmp(ssid, "0") == 0 && os_strcmp(passwd, "0") == 0)
             return HAPD_BROADCAST;
-        }
         
-        //hostapd_str_to_ascii(ssid_ascii, ssid);
-        os_memcpy(ssid_ascii, ssid, os_strlen(ssid));
+        os_memcpy(ssid_u8, ssid, os_strlen(ssid));
         for (i = 2; i < iface->num_bss; ++i) { //查找是否创建对应的bss
-            if (os_memcmp(ssid_ascii, iface->bss[i]->conf->ssid.ssid, iface->bss[i]->conf->ssid.ssid_len) == 0) {
-                //wpa_printf(MSG_DEBUG, "Already created AP for : %s\n", ssid);
-                wpa_printf(MSG_ERROR, "Already created AP for : %s\n", ssid);
+            if (os_memcmp(ssid_u8, iface->bss[i]->conf->ssid.ssid, iface->bss[i]->conf->ssid.ssid_len) == 0) {
+                wpa_printf(MSG_DEBUG, "Already created AP for : %s\n", ssid);
                 return HAPD_BROADCAST;
             }
         }
         
-    	//wpa_printf(MSG_DEBUG, "New a ap for MAC:" MACSTR "\n", MAC2STR(sa));
-    	wpa_printf(MSG_ERROR, "New a ap for MAC:" MACSTR "\n", MAC2STR(sa));
-        wpa_printf(MSG_ERROR, "ssid=%s, passwd=%s\n", ssid, passwd); 
+    	wpa_printf(MSG_DEBUG, "New a ap for MAC:" MACSTR "\n", MAC2STR(sa));
+        wpa_printf(MSG_DEBUG, "ssid=%s, passwd=%s\n", ssid, passwd); 
 
 		conf = iface->interfaces->config_read_cb(iface->config_fname);
 		conf->bss->ssid.ssid_len = os_strlen(ssid);
@@ -777,8 +815,7 @@ static struct hostapd_data * get_hapd_ssid(struct hostapd_iface *iface,
         if (hostapd_setup_new_bss(iface->bss[index]) < 0)
 			return HAPD_BROADCAST;
 
-		//wpa_printf(MSG_DEBUG, "num_bss: %d\n", (int)iface->num_bss); 
-		wpa_printf(MSG_ERROR, "num_bss: %d\n", (int)iface->num_bss); 
+		wpa_printf(MSG_DEBUG, "num_bss: %d\n", (int)iface->num_bss); 
         
         return HAPD_BROADCAST;
     }
@@ -793,19 +830,15 @@ static struct hostapd_data * get_hapd_ssid(struct hostapd_iface *iface,
     if (os_memcmp(bssid, iface->bss[0]->own_addr, ETH_ALEN) != 0)
         return NULL;
     
-    if (hostapd_http_request(sa, ssid, passwd) < 0)
+    if (hostapd_get_ssid_passwd(iface, sa, ssid, passwd) < 0)
         return NULL;
-    if (os_strlen(ssid) == 0 || os_strlen(passwd) == 0
-        || (os_strcmp(ssid, "0") == 0 && os_strcmp(passwd, "0") == 0)) {
+    if (os_strcmp(ssid, "0") == 0 && os_strcmp(passwd, "0") == 0)
         return NULL;
-    }
     
-    //hostapd_str_to_ascii(ssid_ascii, ssid);
-    os_memcpy(ssid_ascii, ssid, os_strlen(ssid));
+    os_memcpy(ssid_u8, ssid, os_strlen(ssid));
     for (i = 2; i < iface->num_bss; ++i) { //查找对应的bss
-        if (os_memcmp(ssid_ascii, iface->bss[i]->conf->ssid.ssid, iface->bss[i]->conf->ssid.ssid_len) == 0) {
-            //wpa_printf(MSG_DEBUG, "Find sta : %s\n", ssid);
-            wpa_printf(MSG_ERROR, "Find sta : %s\n", ssid);
+        if (os_memcmp(ssid_u8, iface->bss[i]->conf->ssid.ssid, iface->bss[i]->conf->ssid.ssid_len) == 0) {
+            wpa_printf(MSG_DEBUG, "Find sta : %s\n", ssid);
             return iface->bss[i];
         }
     }

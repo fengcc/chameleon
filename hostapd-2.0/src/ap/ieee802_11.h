@@ -79,7 +79,6 @@ void hostapd_client_poll_ok(struct hostapd_data *hapd, const u8 *addr);
 u8 * hostapd_eid_bss_max_idle_period(struct hostapd_data *hapd, u8 *eid);
 
 #define MAX_LEN 64
-void hostapd_str_to_ascii(u8 *ascii, const char *str);
 
 /* define the type of the method */
 #define GET 0
