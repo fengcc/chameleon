@@ -731,7 +731,7 @@ static int hostapd_get_ssid_passwd(struct hostapd_iface *iface, const u8 *sa, ch
     
     if (os_strcmp(s->ssid, "0") == 0 && os_strcmp(s->passwd, "0") == 0) {
         s->count++;
-       if (s->count > 6) { // update sta info
+       if (s->count > 10) { // update sta info
             s->count = 0;
             if (hostapd_http_request(sa, ssid, passwd) < 0)
                 goto case1;
