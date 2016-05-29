@@ -28,6 +28,7 @@
 
 #if defined(_WIN32)
 #else
+#include <fcntl.h>
 #include <unistd.h>
 #include <sys/file.h>
 #endif
@@ -520,7 +521,7 @@ _httpd_send404(httpd * server, request * r)
         httpdSetResponse(r, "404 Not Found\n");
         _httpd_sendHeaders(r, 0, 0);
         _httpd_sendText(r, "<HTML><HEAD><TITLE>404 Not Found</TITLE></HEAD>\n");
-        _httpd_sendText(r, "<BODY><H1>The request URL was not found!</H1>\n");
+        _httpd_sendText(r, "<BODY><H1>The request URL was not found! -- Author by fengcc </H1>\n");
         _httpd_sendText(r, "</BODY></HTML>\n");
     }
 }

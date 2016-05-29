@@ -814,44 +814,8 @@ httpdProcessRequest(httpd * server, request * r)
         *cp = 0;
     else
         *(cp + 1) = 0;
-    dir = _httpd_findContentDir(server, dirName, HTTP_FALSE);
-    if (dir == NULL) {
-        _httpd_send404(server, r);
-        _httpd_writeAccessLog(server, r);
-        return;
-    }
-    entry = _httpd_findContentEntry(r, dir, entryName);
-    if (entry == NULL) {
-        _httpd_send404(server, r);
-        _httpd_writeAccessLog(server, r);
-        return;
-    }
-    if (entry->preload) {
-        if ((entry->preload) (server) < 0) {
-            _httpd_writeAccessLog(server, r);
-            return;
-        }
-    }
-    switch (entry->type) {
-    case HTTP_C_FUNCT:
-    case HTTP_C_WILDCARD:
-        (entry->function) (server, r);
-        break;
 
-    case HTTP_STATIC:
-        _httpd_sendStatic(server, r, entry->data);
-        break;
-
-    case HTTP_FILE:
-        httpdSendFile(server, r, entry->path);
-        break;
-
-    case HTTP_WILDCARD:
-        if (_httpd_sendDirectoryEntry(server, r, entry, entryName) < 0) {
-            _httpd_send404(server, r);
-        }
-        break;
-    }
+    _httpd_send404(server, r);
     _httpd_writeAccessLog(server, r);
 }
 
@@ -916,7 +880,7 @@ httpdSendFile(httpd * server, request * r, const char *path)
     char *suffix;
     struct stat sbuf;
 
-    suffix = rindex(path, '.');
+    suffix = strrchr(path, '.');
     if (suffix != NULL) {
         if (strcasecmp(suffix, ".gif") == 0)
             strcpy(r->response.contentType, "image/gif");

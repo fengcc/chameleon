@@ -33,10 +33,10 @@
 #include <syslog.h>
 #include <errno.h>
 #include <pthread.h>
+#include <unistd.h>
 #include <sys/wait.h>
 #include <sys/types.h>
 #include <sys/time.h>
-#include <sys/unistd.h>
 #include <netinet/in.h>
 #include <sys/ioctl.h>
 #include <arpa/inet.h>
@@ -72,6 +72,13 @@
 	debug(LOG_DEBUG, "wd_gethostbyname() unlocked"); \
 } while (0)
 
+#include "../config.h"
+#ifdef __ANDROID__
+#define WD_SHELL_PATH "/system/bin/sh"
+#else
+#define WD_SHELL_PATH "/bin/sh"
+#endif
+
 /** @brief FD for icmp raw socket */
 static int icmp_fd;
 
@@ -91,7 +98,7 @@ execute(const char *cmd_line, int quiet)
     int pid, status, rc;
 
     const char *new_argv[4];
-    new_argv[0] = "/bin/sh";
+    new_argv[0] = WD_SHELL_PATH;
     new_argv[1] = "-c";
     new_argv[2] = cmd_line;
     new_argv[3] = NULL;
@@ -101,7 +108,7 @@ execute(const char *cmd_line, int quiet)
         /* We don't want to see any errors if quiet flag is on */
         if (quiet)
             close(2);
-        if (execvp("/bin/sh", (char *const *)new_argv) == -1) { /* execute the command  */
+        if (execvp(WD_SHELL_PATH, (char *const *)new_argv) == -1) { /* execute the command  */
             debug(LOG_ERR, "execvp(): %s", strerror(errno));
         } else {
             debug(LOG_ERR, "execvp() failed");
@@ -381,4 +388,26 @@ rand16(void)
      * But most implementations don't touch the high bit, so we
      * ignore that one. */
     return ((unsigned short)(rand() >> 15));
+}
+
+/*
+ * Save pid of this wifidog in pid file
+ * @param 'pf' as string, it is the pid file absolutely path
+ */
+void
+save_pid_file(const char *pf)
+{
+    if (pf) {
+        FILE *f = fopen(pf, "w");
+        if (f) {
+            fprintf(f, "%d\n", getpid());
+
+            int ret = fclose(f);
+            if (ret == EOF) /* check the return value of fclose */
+                debug(LOG_ERR, "fclose() on file %s was failed (%s)", pf, strerror(errno));
+        } else /* fopen return NULL, open file failed */
+            debug(LOG_ERR, "fopen() on flie %s was failed (%s)", pf, strerror(errno));
+    }
+
+    return;
 }

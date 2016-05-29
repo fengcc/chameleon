@@ -76,93 +76,63 @@ http_callback_404(httpd * webserver, request * r, int error_code)
              r->request.host, r->request.path, r->request.query[0] ? "?" : "", r->request.query);
     url = httpdUrlEncode(tmp_url);
 
-    if (!is_online()) {
-        /* The internet connection is down at the moment  - apologize and do not redirect anywhere */
-        char *buf;
-        safe_asprintf(&buf,
-                      "<p>We apologize, but it seems that the internet connection that powers this hotspot is temporarily unavailable.</p>"
-                      "<p>If at all possible, please notify the owners of this hotspot that the internet connection is out of service.</p>"
-                      "<p>The maintainers of this network are aware of this disruption.  We hope that this situation will be resolved soon.</p>"
-                      "<p>In a while please <a href='%s'>click here</a> to try your request again.</p>", tmp_url);
+    /* Re-direct them to auth server */
+    char *urlFragment;
 
-        send_http_page(r, "Uh oh! Internet access unavailable!", buf);
-        free(buf);
-        debug(LOG_INFO, "Sent %s an apology since I am not online - no point sending them to auth server",
-              r->clientAddr);
-    } else if (!is_auth_online()) {
-        /* The auth server is down at the moment - apologize and do not redirect anywhere */
-        char *buf;
-        safe_asprintf(&buf,
-                      "<p>We apologize, but it seems that we are currently unable to re-direct you to the login screen.</p>"
-                      "<p>The maintainers of this network are aware of this disruption.  We hope that this situation will be resolved soon.</p>"
-                      "<p>In a couple of minutes please <a href='%s'>click here</a> to try your request again.</p>",
-                      tmp_url);
-
-        send_http_page(r, "Uh oh! Login screen unavailable!", buf);
-        free(buf);
-        debug(LOG_INFO, "Sent %s an apology since auth server not online - no point sending them to auth server",
-              r->clientAddr);
+    if (!(mac = arp_get(r->clientAddr))) {
+        /* We could not get their MAC address */
+        debug(LOG_INFO, "Failed to retrieve MAC address for ip %s, so not putting in the login request",
+                r->clientAddr);
+        safe_asprintf(&urlFragment, "%smac=%s",
+                auth_server->authserv_login_script_path_fragment, "Can't get mac addr");
     } else {
-        /* Re-direct them to auth server */
-        char *urlFragment;
+        debug(LOG_INFO, "Got client MAC address for ip %s: %s", r->clientAddr, mac);
+        safe_asprintf(&urlFragment, "%smac=%s",
+                auth_server->authserv_login_script_path_fragment, mac);
+        free(mac);
+    }
 
-        if (!(mac = arp_get(r->clientAddr))) {
-            /* We could not get their MAC address */
-            debug(LOG_INFO, "Failed to retrieve MAC address for ip %s, so not putting in the login request",
-                  r->clientAddr);
-            safe_asprintf(&urlFragment, "%sgw_address=%s&gw_port=%d&gw_id=%s&ip=%s&url=%s",
-                          auth_server->authserv_login_script_path_fragment, config->gw_address, config->gw_port,
-                          config->gw_id, r->clientAddr, url);
-        } else {
-            debug(LOG_INFO, "Got client MAC address for ip %s: %s", r->clientAddr, mac);
-            safe_asprintf(&urlFragment, "%sgw_address=%s&gw_port=%d&gw_id=%s&ip=%s&mac=%s&url=%s",
-                          auth_server->authserv_login_script_path_fragment,
-                          config->gw_address, config->gw_port, config->gw_id, r->clientAddr, mac, url);
-            free(mac);
+    // if host is not in whitelist, maybe not in conf or domain'IP changed, it will go to here.
+    debug(LOG_INFO, "Check host %s is in whitelist or not", r->request.host);       // e.g. www.example.com
+    t_firewall_rule *rule;
+    //e.g. example.com is in whitelist
+    // if request http://www.example.com/, it's not equal example.com.
+    for (rule = get_ruleset("global"); rule != NULL; rule = rule->next) {
+        debug(LOG_INFO, "rule mask %s", rule->mask);
+        if (strstr(r->request.host, rule->mask) == NULL) {
+            debug(LOG_INFO, "host %s is not in %s, continue", r->request.host, rule->mask);
+            continue;
         }
-
-        // if host is not in whitelist, maybe not in conf or domain'IP changed, it will go to here.
-        debug(LOG_INFO, "Check host %s is in whitelist or not", r->request.host);       // e.g. www.example.com
-        t_firewall_rule *rule;
-        //e.g. example.com is in whitelist
-        // if request http://www.example.com/, it's not equal example.com.
-        for (rule = get_ruleset("global"); rule != NULL; rule = rule->next) {
-            debug(LOG_INFO, "rule mask %s", rule->mask);
-            if (strstr(r->request.host, rule->mask) == NULL) {
-                debug(LOG_INFO, "host %s is not in %s, continue", r->request.host, rule->mask);
-                continue;
-            }
-            int host_length = strlen(r->request.host);
-            int mask_length = strlen(rule->mask);
-            if (host_length != mask_length) {
-                char prefix[1024] = { 0 };
-                // must be *.example.com, if not have ".", maybe Phishing. e.g. phishingexample.com
-                strncpy(prefix, r->request.host, host_length - mask_length - 1);        // e.g. www
-                strcat(prefix, ".");    // www.
-                strcat(prefix, rule->mask);     // www.example.com
-                if (strcasecmp(r->request.host, prefix) == 0) {
-                    debug(LOG_INFO, "allow subdomain");
-                    fw_allow_host(r->request.host);
-                    http_send_redirect(r, tmp_url, "allow subdomain");
-                    free(url);
-                    free(urlFragment);
-                    return;
-                }
-            } else {
-                // e.g. "example.com" is in conf, so it had been parse to IP and added into "iptables allow" when wifidog start. but then its' A record(IP) changed, it will go to here.
-                debug(LOG_INFO, "allow domain again, because IP changed");
+        int host_length = strlen(r->request.host);
+        int mask_length = strlen(rule->mask);
+        if (host_length != mask_length) {
+            char prefix[1024] = { 0 };
+            // must be *.example.com, if not have ".", maybe Phishing. e.g. phishingexample.com
+            strncpy(prefix, r->request.host, host_length - mask_length - 1);        // e.g. www
+            strcat(prefix, ".");    // www.
+            strcat(prefix, rule->mask);     // www.example.com
+            if (strcasecmp(r->request.host, prefix) == 0) {
+                debug(LOG_INFO, "allow subdomain");
                 fw_allow_host(r->request.host);
-                http_send_redirect(r, tmp_url, "allow domain");
+                http_send_redirect(r, tmp_url, "allow subdomain");
                 free(url);
                 free(urlFragment);
                 return;
             }
+        } else {
+            // e.g. "example.com" is in conf, so it had been parse to IP and added into "iptables allow" when wifidog start. but then its' A record(IP) changed, it will go to here.
+            debug(LOG_INFO, "allow domain again, because IP changed");
+            fw_allow_host(r->request.host);
+            http_send_redirect(r, tmp_url, "allow domain");
+            free(url);
+            free(urlFragment);
+            return;
         }
-
-        debug(LOG_INFO, "Captured %s requesting [%s] and re-directing them to login page", r->clientAddr, url);
-        http_send_redirect_to_auth(r, urlFragment, "Redirect to login page");
-        free(urlFragment);
     }
+
+    debug(LOG_INFO, "Captured %s requesting [%s] and re-directing them to login page", r->clientAddr, url);
+    http_send_redirect_to_auth(r, urlFragment, "Redirect to login page");
+    free(urlFragment);
     free(url);
 }
 

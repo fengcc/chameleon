@@ -197,9 +197,11 @@ get_clients_from_parent(void)
                         } else if (strcmp(key, "counters_incoming") == 0) {
                             client->counters.incoming_history = (unsigned long long)atoll(value);
                             client->counters.incoming = client->counters.incoming_history;
+                            client->counters.incoming_delta = 0;
                         } else if (strcmp(key, "counters_outgoing") == 0) {
                             client->counters.outgoing_history = (unsigned long long)atoll(value);
                             client->counters.outgoing = client->counters.outgoing_history;
+                            client->counters.outgoing_delta = 0;
                         } else if (strcmp(key, "counters_last_updated") == 0) {
                             client->counters.last_updated = atol(value);
                         } else {
@@ -364,6 +366,10 @@ main_loop(void)
         started_time = time(NULL);
     }
 
+	/* save the pid file if needed */
+    if ((!config) && (!config->pidfile))
+        save_pid_file(config->pidfile);
+
     /* If we don't have the Gateway IP address, get it. Can't fail. */
     if (!config->gw_address) {
         debug(LOG_DEBUG, "Finding IP address of %s", config->gw_interface);
@@ -410,30 +416,6 @@ main_loop(void)
         debug(LOG_ERR, "FATAL: Failed to initialize firewall");
         exit(1);
     }
-
-    /* Start clean up thread */
-    result = pthread_create(&tid_fw_counter, NULL, (void *)thread_client_timeout_check, NULL);
-    if (result != 0) {
-        debug(LOG_ERR, "FATAL: Failed to create a new thread (fw_counter) - exiting");
-        termination_handler(0);
-    }
-    pthread_detach(tid_fw_counter);
-
-    /* Start control thread */
-    result = pthread_create(&tid, NULL, (void *)thread_wdctl, (void *)safe_strdup(config->wdctl_sock));
-    if (result != 0) {
-        debug(LOG_ERR, "FATAL: Failed to create a new thread (wdctl) - exiting");
-        termination_handler(0);
-    }
-    pthread_detach(tid);
-
-    /* Start heartbeat thread */
-    result = pthread_create(&tid_ping, NULL, (void *)thread_ping, NULL);
-    if (result != 0) {
-        debug(LOG_ERR, "FATAL: Failed to create a new thread (ping) - exiting");
-        termination_handler(0);
-    }
-    pthread_detach(tid_ping);
 
     debug(LOG_NOTICE, "Waiting for connections");
     while (1) {
