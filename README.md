@@ -32,7 +32,7 @@ sudo ./wifidog -f -d 7
 - 下载`OpenWrt`源码。[OpenWrt 15.05 branch (Chaos Calmer)](https://dev.openwrt.org/wiki/GetSource)。**注意**：请保证磁盘至少有十几G的空闲空间，因为后续编译会下载大量软件包，空间太小会编译报错，提示空间不足。
 
 - 首次编译OpenWrt。
-    - 安装必要依赖包：![](http://7xqbsh.com1.z0.glb.clouddn.com/OpenWrt依赖包.PNG)
+    - 安装必要依赖包：</br>![](http://7xqbsh.com1.z0.glb.clouddn.com/OpenWrt依赖包.PNG)
     - 依赖安装完成后
     ```sh
     ./scripts/feeds update -a
