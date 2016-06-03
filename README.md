@@ -20,11 +20,15 @@
 首先启动`hostapd`:
 ```sh
 cd hostapd-PC/hostapd
+make
 sudo ./hostapd /etc/hostapd-phy0.conf
 ```
 启动`wifidog`:
 ```sh
-cd wifidog-1.2.1/src
+cd wifidog-1.2.1
+./autogen.sh
+make
+cd src
 sudo ./wifidog -f -d 7
 ```
 
@@ -41,6 +45,7 @@ sudo ./wifidog -f -d 7
     make prereq
     make menuconfig
     ```
+    配置选项：
         - `Target System`选择`Atheros AR7xxx/AR9xxx`
         - `Target Profile`选择`TP-LINK TL_WR720N`
         - 选中`luci`。在`LuCI`->`Collections`->`luci`
@@ -60,4 +65,4 @@ sudo ./wifidog -f -d 7
     - 拔掉电源，重启路由器。
 
 ## 使用
-首次使用，打开手机wifi，连接公有的OpenWrt，打开浏览器访问任意网页，产生页面跳转，注册用户名密码。注册成功后，断开当前公有wifi，刷新无线网络，将会看到为你动态创建的wifi网络，名称和密码就是你刚才注册使用的用户名和密码，连接后即可正常上网。以后使用时，不管到哪里，只要对方使用的是这款路由器，都会为你动态创建一个以你用户名命名的wifi，手机将会自动连接，不受地理范围的限制。
+首次使用，打开手机wifi，连接公有的OpenWrt，打开浏览器访问任意网页，产生页面跳转，注册用户名密码。注册成功后，断开当前公有wifi，刷新无线网络，将会看到为你动态创建的wifi网络，网络名称和密码分别是手机的MAC地址和刚刚注册使用的密码，连接后即可正常上网。以后使用时，不管到哪里，只要对方使用的是这款路由器，都会为你动态创建一个以你用户名命名的wifi，手机将会自动连接，不受地理范围的限制。

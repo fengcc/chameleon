@@ -406,9 +406,19 @@ static u8 * hostapd_gen_probe_resp(struct hostapd_data *hapd,
 
 	pos = resp->u.probe_resp.variable;
 	*pos++ = WLAN_EID_SSID;
-	*pos++ = hapd->conf->ssid.ssid_len;
-	os_memcpy(pos, hapd->conf->ssid.ssid, hapd->conf->ssid.ssid_len);
-	pos += hapd->conf->ssid.ssid_len;
+
+    if (hapd->ispublic == 0) { 
+        char mac_str[18];
+        os_memset(mac_str, 0, 18);
+        sprintf(mac_str, MACSTR, MAC2STR(req->sa));
+        *pos++ = 17;
+        os_memcpy(pos, mac_str, 17);
+        pos += 17;
+    } else {
+        *pos++ = hapd->conf->ssid.ssid_len;
+        os_memcpy(pos, hapd->conf->ssid.ssid, hapd->conf->ssid.ssid_len);
+        pos += hapd->conf->ssid.ssid_len;
+    }
 
 	/* Supported rates */
 	pos = hostapd_eid_supp_rates(hapd, pos);
@@ -509,16 +519,27 @@ enum ssid_match_result {
 static enum ssid_match_result ssid_match(struct hostapd_data *hapd,
 					 const u8 *ssid, size_t ssid_len,
 					 const u8 *ssid_list,
-					 size_t ssid_list_len)
+					 size_t ssid_list_len,
+                     const u8 *addr)
 {
 	const u8 *pos, *end;
 	int wildcard = 0;
 
 	if (ssid_len == 0)
 		wildcard = 1;
-	if (ssid_len == hapd->conf->ssid.ssid_len &&
-	    os_memcmp(ssid, hapd->conf->ssid.ssid, ssid_len) == 0)
-		return EXACT_SSID_MATCH;
+    
+    if (hapd->ispublic == 0) {
+        char mac_str[18];
+        os_memset(mac_str, 0, 18);
+        sprintf(mac_str, MACSTR, MAC2STR(addr));
+        if (ssid_len == 17 &&
+            os_memcmp(ssid, mac_str, 17) == 0)
+            return EXACT_SSID_MATCH; 
+    } else {
+	    if (ssid_len == hapd->conf->ssid.ssid_len &&
+	        os_memcmp(ssid, hapd->conf->ssid.ssid, ssid_len) == 0)
+		    return EXACT_SSID_MATCH;
+    }
 
 	if (ssid_list == NULL)
 		return wildcard ? WILDCARD_SSID_MATCH : NO_SSID_MATCH;
@@ -654,7 +675,7 @@ void handle_probe_req(struct hostapd_data *hapd,
 #endif /* CONFIG_P2P */
 
 	res = ssid_match(hapd, elems.ssid, elems.ssid_len,
-			 elems.ssid_list, elems.ssid_list_len);
+			 elems.ssid_list, elems.ssid_list_len, mgmt->sa);
 	if (res != NO_SSID_MATCH) {
 		if (sta)
 			sta->ssid_probe = &hapd->conf->ssid;

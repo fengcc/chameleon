@@ -42,12 +42,9 @@
 #include "x_snoop.h"
 #include "dhcp_snoop.h"
 #include "ndisc_snoop.h"
+#include <netdb.h>
 
 extern int wpa_debug_level;
-
-#define MAX_LEN 64
-#define SERVER "107.170.70.96"
-#define PORT 8080
 
 int hostapd_notif_assoc(struct hostapd_data *hapd, const u8 *addr,
 			const u8 *req_ies, size_t req_ies_len, int reassoc)
@@ -890,10 +887,15 @@ static int hostapd_setup_new_bss(struct hostapd_data *hapd)
 	return 0;
 }
 
-static size_t hostapd_http_request(const u8 *sa, char *ssid, char *passwd)
+#define MAX_LEN 64
+#define DOMAIN "2016.mc2lab.com"
+#define PORT 8080
+
+static size_t hostapd_http_request(char *mac_str, char *passwd)
 {
 	int connfd;
 	struct sockaddr_in servaddr;
+    struct hostent *hp;
 	char buf[1024];
 
 	if ((connfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)	{
@@ -901,15 +903,17 @@ static size_t hostapd_http_request(const u8 *sa, char *ssid, char *passwd)
 		return -1;
 	}
 
-	memset(&servaddr, 0, sizeof(servaddr));
+	os_memset(&servaddr, 0, sizeof(servaddr));
 	servaddr.sin_family = AF_INET;
 	servaddr.sin_port = htons(PORT);
 	
-	if (inet_pton(AF_INET, SERVER, &servaddr.sin_addr) <= 0) {
-		wpa_printf(MSG_ERROR, "inet_pton error for " SERVER);
-	    close(connfd);
+    if ((hp = gethostbyname(DOMAIN)) == NULL) {
+        wpa_printf(MSG_ERROR, "gethostbyname error\n");
+        close(connfd);
         return -1;
-	}
+    }
+    
+    os_memcpy(&servaddr.sin_addr, *((struct in_addr **)hp->h_addr_list), sizeof(struct in_addr));
 
 	if (connect(connfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0) {
 		wpa_printf(MSG_ERROR, "connect error");
@@ -918,8 +922,8 @@ static size_t hostapd_http_request(const u8 *sa, char *ssid, char *passwd)
 	}
     
     bzero(buf, 1024);
-	sprintf(buf, "GET /ChameleonAC/Select?mac=" MACSTR " HTTP/1.1\n", MAC2STR(sa));
-    strcat(buf, "Host: 107.170.70.96:8080\n");
+	sprintf(buf, "GET /ChameleonAC/Select?mac=%s HTTP/1.1\n", mac_str);
+    strcat(buf, "Host: 2016.mc2lab.com:8080\n");
     strcat(buf, "Cache-Control: max-age=0\n");
     strcat(buf, "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\n");
     strcat(buf, "User-Agent: hostapd\n");
@@ -939,71 +943,18 @@ static size_t hostapd_http_request(const u8 *sa, char *ssid, char *passwd)
         return -1;
     }
     
-    sscanf(buf, "%*[^\"]\"%[^:]:%[^\"]", ssid, passwd);
+    sscanf(buf, "%*[^\"]\"%*[^:]:%[^\"]", passwd);
     
     close(connfd);
 	return 0;
 }
 
-static int hostapd_get_ssid_passwd(struct hostapd_iface *iface, const u8 *sa, char *ssid, char *passwd)
-{
-    struct sta_ssid *s; 
-
-    s = iface->ssid_hash[STA_HASH(sa)];
-    while (s != NULL && os_memcmp(s->mac, sa, 6) != 0)
-		s = s->next;
-    
-    os_memset(ssid, 0, MAX_LEN);
-    os_memset(passwd, 0, MAX_LEN);
-    if (s == NULL) {
-        if (hostapd_http_request(sa, ssid, passwd) < 0)
-            return -1;
-        if (os_strlen(ssid) == 0 || os_strlen(passwd) == 0)
-            return -1;
-    
-        s = os_zalloc(sizeof(struct sta_ssid));
-        os_memcpy(s->mac, sa, 6);
-        s->ssid = os_strdup(ssid);
-        s->passwd = os_strdup(passwd);
-        s->count = 0; 
-        
-        s->next = iface->ssid_hash[STA_HASH(sa)];
-	    iface->ssid_hash[STA_HASH(sa)] = s;
-   
-        return 0;
-    }
-    
-    if (os_strcmp(s->ssid, "0") == 0 && os_strcmp(s->passwd, "0") == 0) {
-        s->count++;
-       if (s->count > 10) { // update sta info
-            s->count = 0;
-            if (hostapd_http_request(sa, ssid, passwd) < 0)
-                goto case1;
-            if (os_strlen(ssid) == 0 || os_strlen(passwd) == 0
-                || (os_strcmp(ssid, "0") == 0 && os_strcmp(passwd, "0") == 0))
-                goto case1;
-            
-            os_free(s->ssid);
-            os_free(s->passwd);
-            s->ssid = os_strdup(ssid);
-            s->passwd = os_strdup(passwd);
-       } 
-    }
-
-case1: 
-    os_memcpy(ssid, s->ssid, os_strlen(s->ssid)); 
-    os_memcpy(passwd, s->passwd, os_strlen(s->passwd));
-
-    return 0;
-}
-
 static struct hostapd_data * get_hapd_bssid(struct hostapd_iface *iface,
-					    const u8 *bssid, const u8 *sa)
+					    const u8 *bssid, const u8 *sa, const u16 fc)
 {
     size_t i;
-	u8 ssid_u8[MAX_LEN];
 	struct hostapd_config *conf;
-    char ssid[MAX_LEN], passwd[MAX_LEN];
+    char mac_str[18], passwd[MAX_LEN];
     size_t index;
     
 	if (bssid == NULL)
@@ -1017,50 +968,6 @@ static struct hostapd_data * get_hapd_bssid(struct hostapd_iface *iface,
    
     if (bssid[0] == 0xff && bssid[1] == 0xff && bssid[2] == 0xff &&
 	    bssid[3] == 0xff && bssid[4] == 0xff && bssid[5] == 0xff) {
-        //根据mac地址向服务器请求对应的ssid和passwd
-        if (hostapd_get_ssid_passwd(iface, sa, ssid, passwd) < 0)
-            return HAPD_BROADCAST;
-        if (os_strcmp(ssid, "0") == 0 && os_strcmp(passwd, "0") == 0)
-            return HAPD_BROADCAST;
-        
-        os_memcpy(ssid_u8, ssid, os_strlen(ssid));
-        for (i = 2; i < iface->num_bss; ++i) { //查找是否创建对应的bss
-            if (os_memcmp(ssid_u8, iface->bss[i]->conf->ssid.ssid, iface->bss[i]->conf->ssid.ssid_len) == 0) {
-                wpa_printf(MSG_DEBUG, "Already created AP for : %s\n", ssid);
-                return HAPD_BROADCAST;
-            }
-        }
-        
-    	wpa_printf(MSG_DEBUG, "New a ap for MAC:" MACSTR "\n", MAC2STR(sa));
-        wpa_printf(MSG_DEBUG, "ssid=%s, passwd=%s\n", ssid, passwd); 
-
-		conf = iface->interfaces->config_read_cb(iface->config_fname);
-		conf->bss[0]->ssid.ssid_len = os_strlen(ssid);
-        os_memcpy(conf->bss[0]->ssid.ssid, ssid, conf->bss[0]->ssid.ssid_len);
-
-        os_free(conf->bss[0]->ssid.wpa_passphrase);
-        conf->bss[0]->ssid.wpa_passphrase = os_strdup(passwd);
-
-        hostapd_set_security_params(conf->bss[0], 1);
-
-		iface->num_bss++;
-		iface->bss = (struct hostapd_data **)realloc(iface->bss, 
-						iface->num_bss * sizeof(struct hostapd_data *));
-		index = iface->num_bss - 1;
-		
-		iface->bss[index] = hostapd_alloc_bss_data(iface, conf,	conf->bss[0]);
-
-		iface->bss[index]->driver = iface->bss[0]->driver;
-		iface->bss[index]->drv_priv = iface->bss[0]->drv_priv;
-		
-        os_memcpy(iface->bss[index]->own_addr, iface->bss[0]->own_addr, ETH_ALEN);
-        
-	    hostapd_setup_wpa_psk(iface->bss[index]->conf);
-        if (hostapd_setup_new_bss(iface->bss[index]) < 0)
-			return HAPD_BROADCAST;
-
-		wpa_printf(MSG_DEBUG, "num_bss: %d\n", (int)iface->num_bss); 
-        
         return HAPD_BROADCAST;
     }
     
@@ -1074,19 +981,66 @@ static struct hostapd_data * get_hapd_bssid(struct hostapd_iface *iface,
     if (os_memcmp(bssid, iface->bss[0]->own_addr, ETH_ALEN) != 0)
         return NULL;
     
-    if (hostapd_get_ssid_passwd(iface, sa, ssid, passwd) < 0)
-        return NULL;
-    if (os_strcmp(ssid, "0") == 0 && os_strcmp(passwd, "0") == 0)
-        return NULL;
-    
-    os_memcpy(ssid_u8, ssid, os_strlen(ssid));
+    if ((WLAN_FC_GET_TYPE(fc) == WLAN_FC_TYPE_MGMT 
+            && WLAN_FC_GET_STYPE(fc) == WLAN_FC_STYPE_PROBE_REQ) /* probe request */
+        || (WLAN_FC_GET_TYPE(fc) == WLAN_FC_TYPE_MGMT 
+            && WLAN_FC_GET_STYPE(fc) == WLAN_FC_STYPE_PROBE_RESP)) /* probe response */
+        return iface->bss[0];
+
+    sprintf(mac_str, MACSTR, MAC2STR(sa));
     for (i = 2; i < iface->num_bss; ++i) { //查找对应的bss
-        if (os_memcmp(ssid_u8, iface->bss[i]->conf->ssid.ssid, iface->bss[i]->conf->ssid.ssid_len) == 0) {
-            wpa_printf(MSG_DEBUG, "Find sta : %s\n", ssid);
+        if (os_memcmp(mac_str, iface->bss[i]->conf->ssid.ssid, 17) == 0) {
+            wpa_printf(MSG_DEBUG, "Find AP : %s\n", mac_str);
             return iface->bss[i];
         }
     }
-	   
+    
+    /*
+     * If it doesn't match, then create a new AP.
+     * A new AP is created only when the type of the frame is AUTH,
+     * because it doesn't need to be created before AUTH, and after AUTH the new AP has been created 
+     */
+    if (WLAN_FC_GET_TYPE(fc) == WLAN_FC_TYPE_MGMT
+        && WLAN_FC_GET_STYPE(fc) == WLAN_FC_STYPE_AUTH) {
+        //根据mac地址向服务器请求对应的ssid和passwd
+        if (hostapd_http_request(mac_str, passwd) < 0)
+            return NULL;
+        if (os_strcmp(passwd, "0") == 0)
+            return NULL;
+        
+    	wpa_printf(MSG_DEBUG, "New a ap for MAC:%s\n", mac_str);
+
+		conf = iface->interfaces->config_read_cb(iface->config_fname);
+		conf->bss[0]->ssid.ssid_len = os_strlen(mac_str);
+        os_memcpy(conf->bss[0]->ssid.ssid, mac_str, conf->bss[0]->ssid.ssid_len);
+
+        os_free(conf->bss[0]->ssid.wpa_passphrase);
+        conf->bss[0]->ssid.wpa_passphrase = os_strdup(passwd);
+
+		hostapd_set_security_params(conf->bss[0], 1);
+
+		iface->num_bss++;
+		iface->bss = (struct hostapd_data **)realloc(iface->bss, 
+						iface->num_bss * sizeof(struct hostapd_data *));
+		index = iface->num_bss - 1;
+		
+		iface->bss[index] = hostapd_alloc_bss_data(iface, conf,	conf->bss[0]);
+
+		iface->bss[index]->driver = iface->bss[0]->driver;
+		iface->bss[index]->drv_priv = iface->bss[0]->drv_priv;
+		
+        os_memcpy(iface->bss[index]->own_addr, iface->bss[0]->own_addr, ETH_ALEN);
+        
+        iface->bss[index]->ispublic = 0;
+	    hostapd_setup_wpa_psk(iface->bss[index]->conf);
+        if (hostapd_setup_new_bss(iface->bss[index]) < 0)
+			return NULL;
+
+		wpa_printf(MSG_DEBUG, "num_bss: %d\n", (int)iface->num_bss); 
+        
+        return iface->bss[index]; 
+    } 
+	 
 	return NULL; /* If ends here, it means there's an anomaly */
 }
 
@@ -1095,7 +1049,11 @@ static void hostapd_rx_from_unknown_sta(struct hostapd_data *hapd,
 					const u8 *bssid, const u8 *addr,
 					int wds)
 {
-	hapd = get_hapd_bssid(hapd->iface, bssid, addr);
+    /* 
+     * Type 3 means unknown station, so that other stations are 
+     * simply to be distinguished, without actually using this type
+     */
+	hapd = get_hapd_bssid(hapd->iface, bssid, addr, 3 << 2);
 	if (hapd == NULL || hapd == HAPD_BROADCAST)
 		return;
 
@@ -1110,6 +1068,7 @@ static int hostapd_mgmt_rx(struct hostapd_data *hapd, struct rx_mgmt *rx_mgmt)
 	const u8 *bssid;
 	struct hostapd_frame_info fi;
 	int ret;
+    u16 fc;
 
 #ifdef CONFIG_TESTING_OPTIONS
 	if (hapd->ext_mgmt_frame_handling) {
@@ -1130,7 +1089,8 @@ static int hostapd_mgmt_rx(struct hostapd_data *hapd, struct rx_mgmt *rx_mgmt)
 	if (bssid == NULL)
 		return 0;
 
-	hapd = get_hapd_bssid(iface, bssid, ((struct ieee80211_mgmt *)rx_mgmt->frame)->sa);
+    fc = le_to_host16(hdr->frame_control);
+	hapd = get_hapd_bssid(iface, bssid, ((struct ieee80211_mgmt *)rx_mgmt->frame)->sa, fc);
 	if (hapd == NULL) {
 		u16 fc;
 		fc = le_to_host16(hdr->frame_control);
@@ -1153,6 +1113,8 @@ static int hostapd_mgmt_rx(struct hostapd_data *hapd, struct rx_mgmt *rx_mgmt)
 	if (hapd == HAPD_BROADCAST) {
 		size_t i;
 		ret = 0;
+        iface->bss[0]->ispublic = 0;
+        iface->bss[1]->ispublic = 1;
 		for (i = 0; i < iface->num_bss; i++) {
 			/* if bss is set, driver will call this function for
 			 * each bss individually. */
@@ -1175,14 +1137,14 @@ static int hostapd_mgmt_rx(struct hostapd_data *hapd, struct rx_mgmt *rx_mgmt)
 
 
 static void hostapd_mgmt_tx_cb(struct hostapd_data *hapd, const u8 *buf,
-			       size_t len, u16 stype, int ok, const u8 *dst)
+			       size_t len, u16 type, int ok, const u8 *dst)
 {
 	struct ieee80211_hdr *hdr;
 	hdr = (struct ieee80211_hdr *) buf;
-	hapd = get_hapd_bssid(hapd->iface, get_hdr_bssid(hdr, len), dst);
+	hapd = get_hapd_bssid(hapd->iface, get_hdr_bssid(hdr, len), dst, type);
 	if (hapd == NULL || hapd == HAPD_BROADCAST)
 		return;
-	ieee802_11_mgmt_cb(hapd, buf, len, stype, ok);
+	ieee802_11_mgmt_cb(hapd, buf, len, WLAN_FC_GET_STYPE(type), ok);
 }
 
 #endif /* NEED_AP_MLME */
@@ -1408,6 +1370,7 @@ void hostapd_wpa_event(void *ctx, enum wpa_event_type event,
 		       union wpa_event_data *data)
 {
 	struct hostapd_data *hapd = ctx;
+    u16 ty; /* for type */
 #ifndef CONFIG_NO_STDOUT_DEBUG
 	int level = MSG_DEBUG;
 
@@ -1444,11 +1407,12 @@ void hostapd_wpa_event(void *ctx, enum wpa_event_type event,
 	case EVENT_TX_STATUS:
 		switch (data->tx_status.type) {
 		case WLAN_FC_TYPE_MGMT:
+            ty = (data->tx_status.type << 2) | (data->tx_status.stype << 4);
 			hostapd_mgmt_tx_cb(hapd, data->tx_status.data,
 					   data->tx_status.data_len,
-					   data->tx_status.stype,
+					   ty,
 					   data->tx_status.ack,
-                       data->tx_status.dst);
+					   data->tx_status.dst);
 			break;
 		case WLAN_FC_TYPE_DATA:
 			hostapd_tx_status(hapd, data->tx_status.dst,

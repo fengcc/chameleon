@@ -74,6 +74,7 @@ struct hostapd_data {
 	struct hostapd_config *iconf;
 	struct hostapd_bss_config *conf;
 	int interface_added; /* virtual interface added for this BSS */
+    unsigned int ispublic:1;
 
 	u8 own_addr[ETH_ALEN];
 
@@ -223,7 +224,6 @@ struct hostapd_iface {
 
 	unsigned int drv_flags;
 
-    struct sta_ssid *ssid_hash[STA_HASH_SIZE];
 	/*
 	 * A bitmap of supported protocols for probe response offload. See
 	 * struct wpa_driver_capa in driver.h

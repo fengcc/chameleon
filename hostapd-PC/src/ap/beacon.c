@@ -230,9 +230,19 @@ static u8 * hostapd_gen_probe_resp(struct hostapd_data *hapd,
 
 	pos = resp->u.probe_resp.variable;
 	*pos++ = WLAN_EID_SSID;
-	*pos++ = hapd->conf->ssid.ssid_len;
-	os_memcpy(pos, hapd->conf->ssid.ssid, hapd->conf->ssid.ssid_len);
-	pos += hapd->conf->ssid.ssid_len;
+    
+    if (hapd->ispublic == 0) {
+        char mac_str[18];
+        os_memset(mac_str, 0, 18);
+        sprintf(mac_str, MACSTR, MAC2STR(req->sa));
+	    *pos++ = 17;
+	    os_memcpy(pos, mac_str, 17);
+	    pos += 17;
+    } else {
+        *pos++ = hapd->conf->ssid.ssid_len;
+        os_memcpy(pos, hapd->conf->ssid.ssid, hapd->conf->ssid.ssid_len);
+        pos += hapd->conf->ssid.ssid_len;
+    }
 
    	/* Supported rates */
 	pos = hostapd_eid_supp_rates(hapd, pos);
@@ -327,10 +337,20 @@ static enum ssid_match_result ssid_match(struct hostapd_data *hapd,
 
 	if (ssid_len == 0)
 		wildcard = 1;
-	if (ssid_len == hapd->conf->ssid.ssid_len &&
-	    os_memcmp(ssid, hapd->conf->ssid.ssid, ssid_len) == 0)
-		return EXACT_SSID_MATCH;
     
+    if (hapd->ispublic == 0) {
+        char mac_str[18];
+        os_memset(mac_str, 0, 18);
+        sprintf(mac_str, MACSTR, MAC2STR(addr));
+        if (ssid_len == 17 &&
+            os_memcmp(ssid, mac_str, 17) == 0)
+            return EXACT_SSID_MATCH; 
+    } else {
+	    if (ssid_len == hapd->conf->ssid.ssid_len &&
+	        os_memcmp(ssid, hapd->conf->ssid.ssid, ssid_len) == 0)
+		    return EXACT_SSID_MATCH;
+    }
+
 	if (ssid_list == NULL)
 		return wildcard ? WILDCARD_SSID_MATCH : NO_SSID_MATCH;
 
