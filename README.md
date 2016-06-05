@@ -54,7 +54,7 @@ sudo ./wifidog -f -d 7
     make prereq
     make menuconfig
     ```
-    配置选项：
+    - 配置选项：  
         - `Target System`选择`Atheros AR7xxx/AR9xxx`
         - `Target Profile`选择`TP-LINK TL_WR720N`
         - 选中`luci`。在`LuCI`->`Collections`->`luci`
