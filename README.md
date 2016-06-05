@@ -1,13 +1,21 @@
 # Chamelenon
 实现一种WiFi路由器伪装技术，代号变色龙chameleon，以便使变色龙附近的手机（STA,station)能自动关联认证，以使WiFi技术拥有更好的使用体验和更大的覆盖范围。
 
+## 目录结构
+- ChameleonAC —— 服务器端代码
+- config —— 配置文件
+- hostapd-OpenWrt —— 编译进OpenWrt版本的，注意，此版本直接在PC上编译会报错。
+- hostpad-PC —— 在PC上编译运行的版本
+- wifidog-1.2.1 —— 可直接在PC上编译运行，也可以编译进OpenWrt。
+
 ## 使用的开源项目
 - OpenWrt
 - hostapd
 - wifidog
 
 ## 搭建方法
-### PC上搭建过程
+### 一. 本地搭建
+#### 1. PC上搭建过程
 
 **硬件要求**：USB无线网卡
 - 配置`hostapd`（`hostapd-PC`）。按照[这里](https://github.com/mengning/chameleon/wiki/Multiple-SSIDs-Configuration)的方法搭建`hostapd`的多`ssid`模式（使用两个`ssid`，一个是公有的`ssid`，另一个是为动态创建而准备的）并将配置文件换成本项目`config/PC/`目录下的`hostapd-phy0.conf`。
@@ -32,11 +40,12 @@ cd src
 sudo ./wifidog -f -d 7
 ```
 
-### 路由器上搭建过程
+### 2. 路由器上搭建过程
 - 下载`OpenWrt`源码。[OpenWrt 15.05 branch (Chaos Calmer)](https://dev.openwrt.org/wiki/GetSource)。**注意**：请保证磁盘至少有十几G的空闲空间，因为后续编译会下载大量软件包，空间太小会编译报错，提示空间不足。
 
 - 首次编译OpenWrt。
-    - 安装必要依赖包：</br>![](http://7xqbsh.com1.z0.glb.clouddn.com/OpenWrt依赖包.PNG)
+    - 安装必要依赖包：</br>
+    ![](http://7xqbsh.com1.z0.glb.clouddn.com/OpenWrt依赖包.PNG)
     - 依赖安装完成后
     ```sh
     ./scripts/feeds update -a
@@ -63,6 +72,24 @@ sudo ./wifidog -f -d 7
     - 参考[这里](https://wiki.openwrt.org/doc/recipes/routedap)，为路由器创建一个非桥接模式的网络接口wifi。
     - 新建一个wifi网络，默认名为OpenWrt，在其`General Setup`里面将`Network`改为上一步新建的接口wifi。此wifi网络即为公有的wifi。
     - 拔掉电源，重启路由器。
+
+### 二. 云端服务器搭建
+#### 1. 配置环境
+- 安装`tomcat`，`jdk`。参考[这里](https://www.digitalocean.com/community/tutorials/how-to-install-apache-tomcat-7-on-ubuntu-14-04-via-apt-get)。
+- 安装Mysql。通过`apt-get`安装，很简单，不做介绍。安装好后创建一个名为`ChameleonAC`的数据库，新建一个表：
+```sql
+create table account(
+    id int not null auto_increment,
+    ssid char(30) not null,
+    mac char(20),
+    psw char(20),
+    primary key(id));
+```
+
+#### 2. 导入项目
+- 将服务端代码打包成`.war`文件
+- 连接云端服务器，找到`manager webapp`点击，在`WAR file to deploy`栏中，上传文件。
+- 上传成功后，在浏览器中输入`http://服务器ip:8080/ChameleonAC/Register.jsp?mac=123`,就能看到我们的注册页面，查询页面是`http://服务器ip:8080/ChameleonAC/Select?mac=123`。
 
 ## 使用
 首次使用，打开手机wifi，连接公有的OpenWrt，打开浏览器访问任意网页，产生页面跳转，注册用户名密码。注册成功后，断开当前公有wifi，刷新无线网络，将会看到为你动态创建的wifi网络，网络名称和密码分别是手机的MAC地址和刚刚注册使用的密码，连接后即可正常上网。以后使用时，不管到哪里，只要对方使用的是这款路由器，都会为你动态创建一个以你用户名命名的wifi，手机将会自动连接，不受地理范围的限制。
